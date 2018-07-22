@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>SUT Smart Irrigation System Backend</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="/_css/bootstrap.min.css" />
+<link rel="stylesheet" href="/_css/bootstrap-responsive.min.css" />
+<link rel="stylesheet" href="/_css/bootstrap-switch.css" />
+<link rel="stylesheet" href="/_css/colorpicker.css" />
+<link rel="stylesheet" href="/_css/datepicker.css" />
+<link rel="stylesheet" href="/_css/uniform.css" />
+<link rel="stylesheet" href="/_css/select2.css" />
+<link rel="stylesheet" href="/_css/matrix-style.css" />
+<link rel="stylesheet" href="/_css/matrix-media.css" />
+<link rel="stylesheet" href="/_css/custom.css" />
+<link rel="stylesheet" href="/_css/bootstrap-wysihtml5.css" />
+<link rel="stylesheet" href="/_css/jquery.gritter.css" />
+<link href="/_font-awesome/css/font-awesome.css" rel="stylesheet" />
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,800' rel='stylesheet' type='text/css'>
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="/_js/jquery.min.js"></script>
+<script src="/_js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.35.4/css/bootstrap-dialog.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.35.4/js/bootstrap-dialog.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyA1ZfV2sGC8Je4gmUTVcYqW1N0yD0vhMaA",
+    authDomain: "brr-high-precision-sugarcane.firebaseapp.com",
+    databaseURL: "https://brr-high-precision-sugarcane.firebaseio.com",
+    projectId: "brr-high-precision-sugarcane",
+    storageBucket: "brr-high-precision-sugarcane.appspot.com",
+    messagingSenderId: "376848359206"
+  };
+  firebase.initializeApp(config);
+</script>
+
+<script>
+  var ApplicationUserManaged = (function () {
+      function ApplicationUserManaged() { }
+      ApplicationUserManaged.prototype.UserSignOutOption = function () {
+          firebase.auth().signOut();
+          setTimeout(function () {
+              location.replace("login");
+          }, 1000);
+      }
+      return ApplicationUserManaged;
+  } ());
+  var UserAccount = new ApplicationUserManaged();
+  </script>
+
+</head>
+<body>
+  <script>
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          // User is signed in.
+          var displayName = user.displayName;
+          var email = user.email;
+          var emailVerified = user.emailVerified;
+          var photoURL = user.photoURL;
+          var uid = user.uid;
+          var phoneNumber = user.phoneNumber;
+          var providerData = user.providerData;
+          user.getIdToken().then(function(accessToken) {
+            document.getElementById('user-email').textContent = email;
+            document.getElementById('sign-in').textContent = 'Sign out';
+            document.getElementById('account-details').textContent = JSON.stringify({
+              displayName: displayName,
+              email: email,
+              emailVerified: emailVerified,
+              phoneNumber: phoneNumber,
+              photoURL: photoURL,
+              uid: uid,
+              accessToken: accessToken,
+              providerData: providerData
+            }, null, '  ');
+          });
+        } else {
+          // User is signed out.
+          //document.getElementById('sign-in-status').textContent = 'Signed out';
+          //document.getElementById('sign-in').textContent = 'Sign in';
+          //document.getElementById('account-details').textContent = 'null';
+          window.location = 'login';
+        }
+      }, function(error) {
+        console.log(error);
+      });
+  </script>
+<script>
+function post2farm(path, params, method) {
+    method = method || "post"; // Set method to post by default if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+        }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+<!--Header-part-->
+<div id="header">
+  <h1><a href="dashboard.html">Matrix Admin</a></h1>
+</div>
+<!--close-Header-part-->
+
+<!--top-Header-menu-->
+<div id="user-nav" class="navbar navbar-inverse">
+  <ul class="nav">
+    <li  class="dropdown" id="profile-messages" ><a title="" href="#" data-toggle="dropdown" data-target="#profile-messages" class="dropdown-toggle"><i class="icon icon-user"></i>  <span id="user-email" class="text"></span><b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a href="#"><i class="icon-user"></i> My Profile</a></li>
+        <li class="divider"></li>
+        <li><a href="#"><i class="icon-check"></i> My Tasks</a></li>
+        <li class="divider"></li>
+        <li><a href="login.html"><i class="icon-key"></i> Log Out</a></li>
+      </ul>
+    </li>
+    <li class="dropdown" id="menu-messages"><a href="#" data-toggle="dropdown" data-target="#menu-messages" class="dropdown-toggle"><i class="icon icon-envelope"></i> <span class="text">Messages</span> <span class="label label-important">5</span> <b class="caret"></b></a>
+      <ul class="dropdown-menu">
+        <li><a class="sAdd" title="" href="#"><i class="icon-plus"></i> new message</a></li>
+        <li class="divider"></li>
+        <li><a class="sInbox" title="" href="#"><i class="icon-envelope"></i> inbox</a></li>
+        <li class="divider"></li>
+        <li><a class="sOutbox" title="" href="#"><i class="icon-arrow-up"></i> outbox</a></li>
+        <li class="divider"></li>
+        <li><a class="sTrash" title="" href="#"><i class="icon-trash"></i> trash</a></li>
+      </ul>
+    </li>
+    <li class=""><a title="" href="#"><i class="icon icon-cog"></i> <span class="text">Settings</span></a></li>
+    <li class=""><a title="" href="javascript:UserAccount.UserSignOutOption()"><i class="icon icon-share-alt"></i> <span class="text">Logout</span></a></li>
+  </ul>
+</div>
+
+<!--start-top-serch-->
+<div id="search">
+  <input type="text" placeholder="Search here..."/>
+  <button type="submit" class="tip-bottom" title="Search"><i class="icon-search icon-white"></i></button>
+</div>
+<!--close-top-serch-->
+
+<!--sidebar-menu-->
+
+<div id="sidebar"> <a href="#" class="visible-phone"><i class="icon icon-list"></i>Forms</a>
+  <ul>
+    <li><a href="/dashboard"><i class="icon icon-home"></i> <span>Dashboard</span></a> </li>
+    <li class="active"><a href="#"><i class="fa fa-pagelines"></i> <span>รายการฟาร์ม</span></a> </li>
+    <li class="submenu"><a href="#"><i class="icon icon-wrench"></i> <span>จัดการฮาร์ดแวร์</span><span class="label label-important">3</span></a>
+      <ul>
+        <li><a href="mainpump">รายการปั๊มน้ำ</a></li>
+        <li><a href="valve">รายการวาล์วเปิดปิดน้ำ</a></li>
+        <li><a href="sensor">รายการเซ็นเซอร์</a></li>
+      </ul>
+    </li>
+    <li> <a href="#"><i class="icon icon-user"></i> <span>จัดการประเภทดิน</span></a> </li>
+    <li> <a href="#"><i class="icon icon-user"></i> <span>จัดการประเภทพืช</span></a> </li>
+    <li> <a href="#"><i class="icon icon-user"></i> <span>จัดการผู้ใช้งาน</span></a> </li>
+    <!--
+    <li><a href="widgets.html"><i class="icon icon-inbox"></i> <span>Widgets</span></a> </li>
+    <li><a href="tables.html"><i class="icon icon-th"></i> <span>Tables</span></a></li>
+    <li><a href="grid.html"><i class="icon icon-fullscreen"></i> <span>Full width</span></a></li>
+    <li class="submenu"> <a href="#"><i class="icon icon-list"></i> <span>Forms</span> <span class="label label-important">3</span></a>
+      <ul>
+        <li><a href="form-common.html">Basic Form</a></li>
+        <li><a href="form-validation.html">Form with Validation</a></li>
+        <li><a href="form-wizard.html">Form with Wizard</a></li>
+      </ul>
+    </li>
+    <li><a href="buttons.html"><i class="icon icon-tint"></i> <span>Buttons &amp; icons</span></a></li>
+    <li><a href="interface.html"><i class="icon icon-pencil"></i> <span>Eelements</span></a></li>
+    <li class="submenu"> <a href="#"><i class="icon icon-file"></i> <span>Addons</span> <span class="label label-important">5</span></a>
+      <ul>
+        <li><a href="index2.html">Dashboard2</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="calendar.html">Calendar</a></li>
+        <li><a href="invoice.html">Invoice</a></li>
+        <li><a href="chat.html">Chat option</a></li>
+      </ul>
+    </li>
+    <li class="submenu"> <a href="#"><i class="icon icon-info-sign"></i> <span>Error</span> <span class="label label-important">4</span></a>
+      <ul>
+        <li><a href="error403.html">Error 403</a></li>
+        <li><a href="error404.html">Error 404</a></li>
+        <li><a href="error405.html">Error 405</a></li>
+        <li><a href="error500.html">Error 500</a></li>
+      </ul>
+    </li>
+    <li class="content"> <span>Monthly Bandwidth Transfer</span>
+      <div class="progress progress-mini progress-danger active progress-striped">
+        <div style="width: 77%;" class="bar"></div>
+      </div>
+      <span class="percent">77%</span>
+      <div class="stat">21419.94 / 14000 MB</div>
+    </li>
+    <li class="content"> <span>Disk Space Usage</span>
+      <div class="progress progress-mini active progress-striped">
+        <div style="width: 87%;" class="bar"></div>
+      </div>
+      <span class="percent">87%</span>
+      <div class="stat">604.44 / 4000 MB</div>
+    </li> -->
+  </ul>
+</div>
+
+<!--close-left-menu-stats-sidebar-->
+
+<div id="content">
+<div id="content-header">
+  <div id="breadcrumb"> <a href="/dashboard" title="Go to Home" class="tip-bottom"><i class="icon-home"></i> Home</a> <a href="#" class="tip-bottom">จัดการฟาร์ม</a> <a href="#" class="current">แก้ไขข้อมูลฟาร์ม '<%= farm.title %>'</a> </div>
+</div>
+<div class="container-fluid">
+  <div class="row-fluid">
+    <div class="span6">
+      <div class="widget-box">
+        <div class="widget-title"> <span class="icon"> <i class="icon-circle-arrow-left" onclick="location.href='/farm/show/<%= farm.id %>'"></i> </span>
+          <h5>บันทึกการแก้ไขข้อมูลโดยการกดที่เครื่องหมาย <i class="icon-save"></i></h5>
+        </div>
+        <div class="widget-content">
+          <!--form action="../update/<%= farm.id %>" method="post" role="form"-->
+            <div class="control-group">
+              <label for="farm-id" class="col-form-label">หมายเลขฟาร์ม:</label>
+              <input type="text" class="span12" id="edit-farm-id" name="edit_farm_id" value="<%= farm.id %>" readonly>
+            </div>
+            <div class="form-group">
+                <label for="farm-title" class="col-form-label">ชื่อฟาร์ม: <a href=""><i class="icon-save" id="icon-update-farm-title"></i></a></label>
+                <input type="text" class="span12" id="edit-farm-title" value="<%= farm.title %>" required>&nbsp; &nbsp;
+              <script>
+              $("#icon-update-farm-title").on("click", function(event) {
+                  event.preventDefault(); //prevent default action
+                  BootstrapDialog.show({
+                    message: 'แก้ไขชื่อฟาร์มเป็น \"' + document.getElementById("edit-farm-title").value + '\"?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตชื่อฟาร์มใหม่');
+                          var post_url = "/api/farm/update/title/<%= farm.id %>/" + encodeURIComponent(document.getElementById("edit-farm-title").value) + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขชื่อฟาร์มเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขชื่อฟาร์มไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+            </div>
+            <div class="control-group">
+              <label for="farm-id" class="col-form-label">ประเภทพืช: <strong><%= farm.plant_title %></strong></label>
+            </div>
+            <div class="control-group">
+              <label for="farm-description" class="col-form-label">รายละเอียด: <a href=""><i class="icon-save" id="icon-update-farm-description"></i></a></label>
+              <textarea class="span12" rows="8" id="edit-farm-description" name="edit_farm_description" required><%= farm.description %></textarea>
+              <script>
+              //$("#form-update-farm-title").submit(function(event){
+              $("#icon-update-farm-description").on("click", function(event) {
+                  event.preventDefault(); //prevent default action
+
+                  BootstrapDialog.show({
+                    message: 'แก้ไขรายละเอียดฟาร์มเป็น \"' + document.getElementById("edit-farm-description").value + '\"?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตรายละเอียดฟาร์มใหม่');
+                          var post_url = "/api/farm/update/description/<%= farm.id %>/" + encodeURIComponent(document.getElementById("edit-farm-description").value) + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขรายละเอียดฟาร์มเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขรายละเอียดฟาร์มไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+
+              });
+              </script>
+            </div>
+            <div class="form-group">
+              <div id="map" class="col-md-11 col-sm-11 col-xs-11" style="height:480px;"></div>
+                  <script>
+                    function initMap() {
+                      var _lat = <%= farm.latitude %>;
+                      var _lng = <%= farm.longitude %>;
+                      var loc = {lat: _lat, lng: _lng};
+                      var map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 14,
+                        center: loc,
+                        mapTypeId: google.maps.MapTypeId.HYBRID
+                      });
+                      var marker = new google.maps.Marker({
+                        position: loc,
+                        map: map
+                      });
+                      google.maps.event.addListener(map,'click',function(event) {
+                        var myLatLng = event.latLng;
+                        //map.setCenter(event.latLng);
+                        marker.setPosition(event.latLng);
+
+                        //map.setZoom(16);
+                        //map.setCenter(marker.getPosition());
+                        document.getElementById("edit-farm-latitude").value = myLatLng.lat();
+                        document.getElementById("edit-farm-longitude").value = myLatLng.lng();
+                      });
+                    }
+                  </script>
+                  <script async defer
+                  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDGIJdM2PE8wCYtPSkYw1TgI9NXG6l3Pc&callback=initMap">
+                  </script>
+            </div>
+            <br>
+            <div class="form-row">
+              <label for="message-text" class="col-form-label">ละติจูด - ลองจิจูด: <a href=""><i class="icon-save" id="icon-update-farm-location"></i></a></label>
+              <input type="text" class="span6" id="edit-farm-latitude" name="edit_farm_latitude" value="<%= farm.latitude %>" required> - <input type="text" class="span6" id="edit-farm-longitude" name="edit_farm_longitude" value="<%= farm.longitude %>" required>
+              <script>
+              $("#icon-update-farm-location").on("click", function(event) {
+                  event.preventDefault();
+                  BootstrapDialog.show({
+                    message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากตำแหน่งของฟาร์มมีการเปลี่ยนแปลง ซึ่งมีผลให้ค่า ETp มีการเปลี่ยนแปลงตามไปด้วย ให้ดำเนินการต่อ?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตค่าตำแหน่งของฟาร์มและคำนวณตารางการให้น้ำใหม่');
+                          var post_url = "/api/farm2/update/location/<%= farm.id %>/" + document.getElementById("edit-farm-latitude").value + "/" + document.getElementById("edit-farm-longitude").value + "/";
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขตำแหน่งฟาร์มเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขตำแหน่งฟาร์มไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+
+            </div>
+            <div class="control-group">
+              <label for="edit-farm-tape-interval" class="col-form-label">ระยะระหว่างแถวของเทปน้ำหยด (เมตร): <a href=""><i class="icon-save" id="icon-update-farm-tape-interval"></i></a></label>
+              <input type="number" step="0.1" min="0.1" max="2" class="span12" id="edit-farm-tape-interval" name="edit_farm_tape_interval" value="<%= farm.tape_interval %>" required>
+              <script>
+              $("#icon-update-farm-tape-interval").on("click", function(event) {
+                  event.preventDefault();
+                  BootstrapDialog.show({
+                    message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากระยะห่างระหว่างแถวของเทปน้ำหยดจะถูกเปลี่ยนแปลงเป็น ' + document.getElementById("edit-farm-tape-interval").value + ' เมตร ให้ดำเนินการต่อ?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตค่าระยะห่างระหว่างแถวของหัวน้ำหยดและคำนวณตารางการให้น้ำใหม่');
+                          var post_url = "/api/farm2/update/tape_interval/<%= farm.id %>/" + document.getElementById("edit-farm-tape-interval").value + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขระยะระหว่างแถวของเทปน้ำหยดเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขระยะระหว่างแถวของเทปน้ำหยดไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+
+            </div>
+            <div class="form-group">
+              <label for="edit-farm-drip-interval" class="col-form-label">ระยะระหว่างหัวน้ำหยด (เมตร): <a href=""><i class="icon-save" id="icon-update-farm-drip-interval"></i></a></label>
+              <input type="number" step="0.1" min="0.1" max="2" class="span12" id="edit-farm-drip-interval" name="edit_farm_drip_interval" value="<%= farm.drip_interval %>">
+              <script>
+              $("#icon-update-farm-drip-interval").on("click", function(event) {
+                  event.preventDefault();
+                  BootstrapDialog.show({
+                    message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากระยะห่างระหว่างหัวน้ำหยดจะถูกเปลี่ยนแปลงเป็น ' + document.getElementById("edit-farm-drip-interval").value + ' เมตร ให้ดำเนินการต่อ?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตค่าระยะห่างระหว่างหัวน้ำหยดและคำนวณตารางการให้น้ำใหม่...');
+                          var post_url = "/api/farm2/update/drip_interval/<%= farm.id %>/" + document.getElementById("edit-farm-drip-interval").value + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขระยะระหว่างหัวน้ำหยดเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขระยะระหว่างหัวน้ำหยดไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+            </div>
+
+            <div class="control-group">
+              <label for="edit-farm-drip-flowrate" class="col-form-label">อัตราการไหลของหัวน้ำหยด (ลิตร/ชั่วโมง): <a href=""><i class="icon-save" id="icon-update-farm-drip-flowrate"></i></a></label>
+              <input type="number" step="0.1" min="0.1" max="4" class="span12" id="edit-farm-drip-flowrate" name="edit_farm_drip_flowrate" value="<%= farm.drip_flowrate %>">
+              <script>
+              $("#icon-update-farm-drip-flowrate").on("click", function(event) {
+                  event.preventDefault();
+                  BootstrapDialog.show({
+                    message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากอัตราการไหลของหัวน้ำหยดจะถูกเปลี่ยนแปลงเป็น ' + document.getElementById("edit-farm-drip-flowrate").value + ' ลิตร/ชั่วโมง ให้ดำเนินการต่อ?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตค่าอัตราการไหลของหัวน้ำหยดและคำนวณตารางการให้น้ำใหม่...');
+                          var post_url = "/api/farm2/update/drip_flowrate/<%= farm.id %>/" + document.getElementById("edit-farm-drip-flowrate").value + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขอัตราการไหลของหัวน้ำหยดเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขอัตราการไหลของหัวน้ำหยดไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+            </div>
+            <div class="control-group">
+              <label class="control-label">ประเภทดิน (ค่าการอุ้มน้ำได้ 1 มม.ต่อดิน 1 ซม.): <a href=""><i class="icon-save" id="icon-update-farm-soil-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_soil_id" id="edit-soil-id" class="span12">
+                  <% for(var s=0;s < soils.length;s++) { %>
+                    <option value="<%= soils[s].id %>" <% if(farm.soil_id == soils[s].id) { %>selected<% } %>><%= soils[s].title_thai %> (<%= soils[s].water_holding_capacity %> มม.)</option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-soil-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากประเภทของดินจะถูกเปลี่ยนแปลงเป็น' + $("#edit-soil-id option:selected").text() + ' ให้ดำเนินการต่อ?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตประเภทของดินและคำนวณตารางการให้น้ำใหม่...');
+                            var post_url = "/api/farm2/update/soil/<%= farm.id %>/" + document.getElementById("edit-soil-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขประเภทของดินเรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขประเภทของดินไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <!--div class="form-group">
+              <label class="control-label">ประเภทพืช: <a href=""><i class="icon-save" id="icon-update-farm-plant-id"></i></a></label>              
+              <div class="controls">
+                <select name="edit_plant_id" id="edit-plant-id" class="span12">
+                  <% for(var s=0;s < plants.length;s++) { %>
+                    <option value="<%= plants[s].id %>" <% if(farm.plant_id == plants[s].id) { %>selected<% } %>><%= plants[s].title %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-plant-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากประเภทของพืชจะถูกเปลี่ยนแปลงเป็น' + $("#edit-plant-id option:selected").text() + ' ให้ดำเนินการต่อ?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตประเภทของพืชและคำนวณตารางการให้น้ำใหม่...');
+                            var post_url = "/api/farm2/update/plant/<%= farm.id %>/" + document.getElementById("edit-plant-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขประเภทของพืชเรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขประเภทของพืชไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div-->
+            <div class="form-group">
+              <label class="control-label">วันที่เริ่มปลูก: <a href=""><i class="icon-save" id="icon-update-farm-starting-date"></i></a></label>
+              <div class="controls">
+                <div  data-date="<%= farm.starting_date %>" class="input-append date datepicker">
+                  <input type="text" value="<%= moment(farm.starting_date).format('YYYY-MM-DD') %>" id="edit-farm-starting-date" name="edit_farm_starting_date" >
+                  <span class="add-on"><i class="icon-calendar"></i></span>
+                <script>
+                $("#icon-update-farm-starting-date").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'ระบบจะทำการคำนวณตารางการให้น้ำทั้งหมดใหม่เนื่องจากวันที่เริ่มปลูกพืชจะถูกเปลี่ยนแปลงเป็น ' + document.getElementById("edit-farm-starting-date").value + ' ให้ดำเนินการต่อ?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตวันที่เริ่มปลูกพืชและคำนวณตารางการให้น้ำใหม่');
+                            var post_url = "/api/farm2/update/starting_date/<%= farm.id %>/" + document.getElementById("edit-farm-starting-date").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขวันที่เริ่มปลูกเรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขวันที่เริ่มปลูกไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="edit-farm-watering-scheme" class="col-form-label">วิธีการให้น้ำ: <strong>ให้น้ำระบบน้ำหยดอัตโนมัติตามค่าสภาพอากาศ</strong></label>
+            </div>
+            <div class="form-group">
+              <label class="control-label">หมายเลขเซ็นเซอร์น้ำฝน: <a href=""><i class="icon-save" id="icon-update-farm-rain-sensor-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_rain_sensor_id" id="edit-farm-rain-sensor-id" class="span12">
+                  <% for(var s=0;s < sensors.length;s++) { %>
+                    <option value="<%= sensors[s].id %>" <% if(farm.rain_sensor_id == sensors[s].id) { %>selected<% } %>><%= sensors[s].id %> - <%= sensors[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-rain-sensor-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขเซ็นเซอร์น้ำฝนเป็น ' + document.getElementById("edit-farm-rain-sensor-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขเซ็นเซอร์น้ำฝนใหม่...');
+                            var post_url = "/api/farm/update/rain_sensor_id/<%= farm.id %>/" + document.getElementById("edit-farm-rain-sensor-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขเซ็นเซอร์น้ำฝนเรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขเซ็นเซอร์น้ำฝนไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">หมายเลขปั๊มน้ำ: <a href=""><i class="icon-save" id="icon-update-farm-mainpump-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_mainpump_id" id="edit-farm-mainpump-id" class="span12">
+                  <% for(var s=0;s < mainpumps.length;s++) { %>
+                    <option value="<%= mainpumps[s].id %>" <% if(farm.mainpump_id == mainpumps[s].id) { %>selected<% } %>><%= mainpumps[s].id %> - <%= mainpumps[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-mainpump-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขปั๊มน้ำหลักเป็น ' + document.getElementById("edit-farm-mainpump-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขปั๊มน้ำหลักใหม่...');
+                            var post_url = "/api/farm/update/mainpump_id/<%= farm.id %>/" + document.getElementById("edit-farm-mainpump-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขปั๊มน้ำเรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขปั๊มน้ำไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #1: <a href=""><i class="icon-save" id="icon-update-farm-valve-1-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_1_id" id="edit-farm-valve-1-id"  class="span12">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_1_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-1-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 1 เป็น ' + document.getElementById("edit-farm-valve-1-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 1 ใหม่...');
+                            var post_url = "/api/farm/update/valve_1_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-1-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 1 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 1 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #2: <a href=""><i class="icon-save" id="icon-update-farm-valve-2-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_2_id" id="edit-farm-valve-2-id" class="span12">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_2_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-2-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 2 เป็น ' + document.getElementById("edit-farm-valve-2-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 2 ใหม่...');
+                            var post_url = "/api/farm/update/valve_2_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-2-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 2 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 2 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="edit-farm-alarm-time" class="col-form-label">ตั้งเวลาเตือนการให้น้ำ: <a href=""><i class="icon-save" id="icon-update-farm-alarm"></i></a></label>
+              <div id="datetimepicker3" class="input-append">
+              <input data-format="hh:mm:ss" value="<%= farm.alarm_time %>" type="text" name="edit_farm_alarm_time" id="edit-farm-alarm-time" ></input>
+              <span class="add-on">
+                <i data-time-icon="icon-time" data-date-icon="icon-calendar">
+                </i>
+              </span>
+              <script type="text/javascript">
+                $(function() {
+                  $('#datetimepicker3').datetimepicker({
+                    pickDate: false
+                  });
+                });
+              </script>
+            </div>
+            <script>
+            $("#icon-update-farm-alarm").on("click", function(event) {
+                event.preventDefault();
+                BootstrapDialog.show({
+                  message: 'แก้ไขเวลาเตือนการให้น้ำเป็น ' + document.getElementById("edit-farm-alarm-time").value + '?',
+                  type: BootstrapDialog.TYPE_WARNING,
+                  buttons: [{
+                      label: 'ยกเลิก',
+                      action: function(dialogRef){
+                          dialogRef.close();
+                            }
+                          },
+                    {
+                    icon: 'glyphicon glyphicon-check',
+                    label: 'ตกลง',
+                    cssClass: 'btn-warning',
+                    autospin: true,
+                    action: function(dialogRef){
+                        dialogRef.enableButtons(false);
+                        dialogRef.setClosable(false);
+                        dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตเวลาเตือนการให้น้ำใหม่...');
+                        var post_url = "/api/farm2/update/alarm/<%= farm.id %>/" + document.getElementById("edit-farm-alarm-time").value + "/";
+                        //console.log("Post url => ", post_url);
+                        $.post(post_url, {}, function( response ) {
+                          if(response == "200")
+                          {
+                            $.gritter.add({
+                              title:	'สำเร็จ',
+                              text:	'แก้ไขเวลาเตือนการให้น้ำเรียบร้อย...',
+                              sticky: false
+                            });
+                            dialogRef.close();
+                          }
+                          else{
+                            $.gritter.add({
+                              title:	'ผิดพลาด',
+                              text:	'แก้ไขเวลาเตือนการให้น้ำไม่สำเร็จ...',
+                              sticky: true
+                            });
+                            dialogRef.close();
+                          }
+                        });
+                    }
+                }]
+
+                });
+            });
+          </script>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-farm-alarm-interval" class="col-form-label">ช่วงเวลาเตือนการให้น้ำ (นาที): <a href=""><i class="icon-save" id="icon-update-farm-alarm-interval"></i></a></label>
+                <input type="number" min="1" step="1" class="span12" id="edit-farm-alarm-interval" name="edit_farm_alarm_interval" value="<%= farm.alarm_interval %>" placeholder="15">
+              <script>
+              $("#icon-update-farm-alarm-interval").on("click", function(event) {
+                  event.preventDefault();
+                  BootstrapDialog.show({
+                    message: 'แก้ไขช่วงเวลาเตือนการให้น้ำเป็น ' + document.getElementById("edit-farm-alarm-interval").value + ' นาที?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตช่วงเวลาเตือนการให้น้ำใหม่...');
+                          var post_url = "/api/farm2/update/alarm_interval/<%= farm.id %>/" + document.getElementById("edit-farm-alarm-interval").value + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไขช่วงเวลาเตือนการให้น้ำเรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไขช่วงเวลาเตือนการให้น้ำไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+            </div>
+            <div class="form-group">
+              <label for="edit-farm-linegroup-token" class="col-form-label">Line Group token (เพื่อส่งข้อความเตือนจากระบบเข้ากลุ่มไลน์): <a href=""><i class="icon-save" id="icon-update-farm-linegroup-token"></i></a></label>
+              <input type="text" class="span12" id="edit-farm-linegroup-token" name="edit_farm_linegroup_token" value="<%= farm.linegroup_token %>" placeholder="w1roOGV3g4OQK9hoNAXvLxzosLPPYUvlAZRy7nTzBsD">
+              <script>
+              $("#icon-update-farm-linegroup-token").on("click", function(event) {
+                  event.preventDefault();
+                  BootstrapDialog.show({
+                    message: 'แก้ไข linegroup token เป็น ' + document.getElementById("edit-farm-linegroup-token").value + '?',
+                    type: BootstrapDialog.TYPE_WARNING,
+                    buttons: [{
+                        label: 'ยกเลิก',
+                        action: function(dialogRef){
+                            dialogRef.close();
+                              }
+                            },
+                      {
+                      icon: 'glyphicon glyphicon-check',
+                      label: 'ตกลง',
+                      cssClass: 'btn-warning',
+                      autospin: true,
+                      action: function(dialogRef){
+                          dialogRef.enableButtons(false);
+                          dialogRef.setClosable(false);
+                          dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดต linegroup token ใหม่...');
+                          var post_url = "/api/farm/update/linegroup_token/<%= farm.id %>/" + document.getElementById("edit-farm-linegroup-token").value + "/";
+                          //console.log("Post url => ", post_url);
+                          $.post(post_url, {}, function( response ) {
+                            if(response == "200")
+                            {
+                              $.gritter.add({
+                                title:	'สำเร็จ',
+                                text:	'แก้ไข linegroup token เรียบร้อย...',
+                                sticky: false
+                              });
+                              dialogRef.close();
+                            }
+                            else{
+                              $.gritter.add({
+                                title:	'ผิดพลาด',
+                                text:	'แก้ไข lingroup token ไม่สำเร็จ...',
+                                sticky: true
+                              });
+                              dialogRef.close();
+                            }
+                          });
+                      }
+                  }]
+
+                  });
+              });
+            </script>
+            </div>
+            <br>
+            <button type="button" class="btn btn-primary" onclick="location.href='/farm/show/<%= farm.id %>'"><i class="icon-circle-arrow-left"></i> กลับ</button>
+          <!--/form-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--Footer-part-->
+<div class="row-fluid">
+  <div id="footer" class="span12"> 2013 &copy; Matrix Admin. Brought to you by <a href="http://themedesigner.in">Themedesigner.in</a> </div>
+</div>
+<!--end-Footer-part-->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.js"></script> -->
+
+<script src="/_js/jquery.ui.custom.js"></script>
+<script src="/_js/bootstrap-colorpicker.js"></script>
+<script src="/_js/bootstrap-datepicker.js"></script>
+<!--<script src="js/jquery.toggle.buttons.js"></script> -->
+<script src="/_js/jquery.uniform.js"></script>
+<script src="/_js/masked.js"></script>
+<script src="/_js/select2.min.js"></script>
+<!--script src="/_js/matrix.form_common.js"></script-->
+<script src="/_js/matrix.js"></script>
+<script src="/_js/jquery.gritter.min.js"></script>
+<script src="/_js/wysihtml5-0.3.0.js"></script>
+<script src="/_js/jquery.peity.min.js"></script>
+<script src="/_js/bootstrap-wysihtml5.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/jquery/1.11.3/jquery.min.js"></script>-->
+<!--script src="http://wzrd.in/standalone/uuid%2Fv1@latest"></script-->
+<script type="text/javascript"
+     src="http://tarruda.github.com/bootstrap-datetimepicker/assets/js/bootstrap-datetimepicker.min.js">
+</script>
+
+</body>
+</html>

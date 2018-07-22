@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+ <html lang="en">
+  <head>
+   <title>SUT Smart Irrigation System Backend</title>
+   <meta charset="UTF-8">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+ </head>
+ <!-- Below is the initialization snippet for my Firebase project. It will vary for each project -->
+ <script src="https://www.gstatic.com/firebasejs/4.10.1/firebase.js"></script>
+ <script>
+   firebase.auth().onAuthStateChanged(function(user){
+     firebase.auth().signOut();
+     console.log("User has signed out...");
+   });
+    // Step 1:
+    //  If no user, sign in anonymously with firebase.auth().signInAnonymously()
+    //  If there is a user, log out out user details for debugging purposes.
+</script>
+ <!-- Include a simple background image & and title -->
+  <div></div>
+  <body>
+  </body>
+ </html>
