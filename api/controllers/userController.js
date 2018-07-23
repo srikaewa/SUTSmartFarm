@@ -21,11 +21,11 @@ var userList = [];
 
 var admin = require("firebase-admin");
 
-var serviceAccount = require("../../keys/swi-high-precision-farm-firebase-adminsdk-ibwdt-cf8c50a22b.json");
+var serviceAccount = require("../../keys/brr-high-precision-sugarcane-firebase-adminsdk-jyxv0-9e1f4e88f9.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://swi-high-precision-farm.firebaseio.com"
+  databaseURL: "https://brr-high-precision-sugarcane.firebaseio.com"
 });
 
 function snapshotToArray(snapshot) {
@@ -85,7 +85,7 @@ exports.update_user = function(req, res){
         last_updated: moment().format()
       });
     };
-    res.render('dashboard/index.ejs',{});
+    res.redirect('/dashboard');
   });
 
 

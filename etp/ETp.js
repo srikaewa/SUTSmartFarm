@@ -323,7 +323,7 @@ var computeWateringSchedule = function(farm_id, callback, res)
   ref.once('value', function(snapshot1) {
     var farmObj = JSON.parse(JSON.stringify(snapshot1));
     //res.redirect('../farm');
-    //console.log("Edit farm[" + farm_id + "].......................................");
+    //console.log("Compute watering schedule for farm[" + farm_id + "] with soil[" + farmObj.soil_id + "].......................................");
     ref = db.ref('/soil/' + farmObj.soil_id);
     ref.once('value', function(snapshot2){
       var soil = JSON.parse(JSON.stringify(snapshot2));
