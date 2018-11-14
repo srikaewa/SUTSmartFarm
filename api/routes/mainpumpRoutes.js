@@ -24,13 +24,13 @@ module.exports = function(app) {
     .post(mainpump.activate_mainpump);
   app.route('/mainpump/deactivate/:id')
     .post(mainpump.deactivate_mainpump);
-  app.route('/mainpump/turnon/:id/:key/:field')
+  app.route('/mainpump/turnon/id:')
     .post(mainpump.turnon_mainpump);
-  app.route('/mainpump/turnoff/:id/:key/:field')
+  app.route('/mainpump/turnoff/:id')
     .post(mainpump.turnoff_mainpump);
-  app.route('/api/mainpump/turnon/:id/:key/:field')
+  app.route('/api/mainpump/turnon/:id')
     .post(mainpump.api_turnon_mainpump);
-  app.route('/api/mainpump/turnoff/:id/:key/:field')
+  app.route('/api/mainpump/turnoff/:id')
     .post(mainpump.api_turnoff_mainpump);
   app.route('/api/mainpump/set/description/:id/:value')
     .post(mainpump.api_set_description);

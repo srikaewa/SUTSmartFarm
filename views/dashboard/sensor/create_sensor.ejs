@@ -186,17 +186,17 @@ function post2sensor(path, params, method) {
         <div class="widget-content">
           <form action="sensor/create" method="post">
             <div class="form-group">
-              <label for="recipient-name" class="col-form-label">หมายเลขเซ็นเซอร์:</label>
-              <input type="text" class="form-control" id="add-sensor-id" name="add_sensor_id" placeholder="12345" required>
+              <label for="recipient-name" class="col-form-label">Token:</label>
+              <input type="text" class="form-control span6" id="add-sensor-token" name="add_sensor_token" placeholder="85ecd4626ec1466fb5b8d1c051375655" required>
             </div>
             <div class="form-group">
               <label for="message-text" class="col-form-label">รายละเอียด</label>
-              <textarea class="form-control" id="add-sensor-description" name="add_sensor_description" placeholder="คำอธิบายรายละเอียดเซ็นเซอร์ เช่นเซ็นเซอร์ความชื้น" required></textarea>
+              <textarea class="form-control span6" id="add-sensor-description" name="add_sensor_description" placeholder="คำอธิบายรายละเอียดเซ็นเซอร์ เช่นเซ็นเซอร์ความชื้น" required></textarea>
             </div>
-            <div class="form-group">
+            <!--<div class="form-group">
               <label for="message-text" class="col-form-label">Read API Key</label>
-              <input type="text" class="form-control" id="add-sensor-read-api-key" name="add_sensor_read_api_key" placeholder="B0D0LDXXXYHBO9VF">
-            </div>
+              <input type="text" class="span12" id="add-sensor-read-api-key" name="add_sensor_read_api_key" placeholder="B0D0LDXXXYHBO9VF">
+            </div>-->
             <!--<div class="form-group">
               <label for="message-text" class="col-form-label">ช่วงเวลาอ่านค่า</label>
               <input type="text" class="form-control" id="add-sensor-sampling-time" name="add_sensor_sampling_time" placeholder="15"> นาที

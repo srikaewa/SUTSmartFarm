@@ -8,6 +8,7 @@ var db = admin.database();
 
 var ThingSpeakClient = require('thingspeakclient');
 
+var Blynk = require('blynk-library');
 
 function snapshotToArray(snapshot) {
     var returnArr = [];
@@ -38,35 +39,38 @@ exports.new_sensor = function(req, res){
 };
 
 exports.create_a_sensor = function(req, res){
-  var sensorClient = new ThingSpeakClient();
-  var sensor_id = req.body.add_sensor_id;
+  var sensor_id = uuidv1();
+  var sensor_token = req.body.add_sensor_token;
   var sensor_description = req.body.add_sensor_description;
-  var sensor_read_api_key = req.body.add_sensor_read_api_key;
+  //var sensor_read_api_key = req.body.add_sensor_read_api_key;
   var _now = moment();
   //var sensor_sampling_time = req.body.add_sensor_sampling_time;
-  console.log('Sensor id = ' + sensor_id + ", key = " + sensor_read_api_key);
+  //console.log('Sensor id = ' + sensor_id + ", key = " + sensor_read_api_key);
   /*var ref = db.ref('/mainpump/' + pump_id).set({
     write_api_key: write_api_key
   });*/
     var ref = db.ref('/sensor').child(sensor_id).set({
+      token: sensor_token,
       description: sensor_description,
-      read_api_key: sensor_read_api_key,
+      value: '0',
+      //read_api_key: sensor_read_api_key,
       //sampling_time: sensor_sampling_time,
       activated: 'false',
-      entry_id: -1,
-      field1: "0",
-      field2: "0",
-      field3: "0",
-      field4: "0",
-      field5: "0",
-      field6: "0",
-      field7: "0",
-      field8: "0",
+      //entry_id: -1,
+      //field1: "0",
+      //field2: "0",
+      //field3: "0",
+      //field4: "0",
+      //field5: "0",
+      //field6: "0",
+      //field7: "0",
+      //field8: "0",
+      last_read: _now.format(),
       created_at: _now.format(),
-      data_created_at: _now.format(),
+      //data_created_at: _now.format(),
       last_updated: _now.format()
     });
-  res.redirect('../sensor')
+  res.redirect('/sensor')
 };
 
 exports.edit_a_sensor = function(req, res){
@@ -83,49 +87,54 @@ exports.edit_a_sensor = function(req, res){
 };
 
 exports.update_a_sensor = function(req, res){
+  var _now = moment();
   var sensor_id = req.body.edit_sensor_id;
   var sensor_description = req.body.edit_sensor_description;
-  var sensor_read_api_key = req.body.edit_sensor_read_api_key;
+  //var sensor_last_updated = req.body.edit_sensor_last_updated;
   //var sensor_sampling_time = req.body.edit_sensor_sampling_time;
-  console.log('sensor id = ' + sensor_id + ", read_api_key = " + sensor_read_api_key);
   var ref = db.ref('/sensor').child(sensor_id).update({
     description: sensor_description,
-    read_api_key: sensor_read_api_key,
+    last_updated: _now.format(),
     //sampling_time: sensor_sampling_time,
     activated: 'false'
   });
-  res.redirect('../../sensor');
+  console.log('sensor[' + sensor_id + "] has been successfully updated...");
+  res.redirect('/sensor/show/' + sensor_id);
 };
 
 exports.show_sensor = function(req, res){
-  var sensorClient = new ThingSpeakClient();
   var sensor_id = req.params.id;
   var ref = db.ref('/sensor/' + sensor_id);
   var async = require('async');
-
-  async.series([
-    function(callback){
-      sensorClient.getLastEntryInChannelFeed(parseInt(sensor_id), {}, function(err, resp){
-        if(typeof resp !== 'undefined')
-        {
-          db.ref('/sensor').child(sensor_id).update(resp);
-          callback(null, 1);
-        }
-      });
-    },
+  async.waterfall([
     function(callback){
       ref.once('value', function(snapshot) {
         var obj = JSON.parse(JSON.stringify(snapshot));
         obj.id = sensor_id;
         //res.redirect('../farm');
-        //console.log("Edit farm[" + farm_id + "].......................................");
         callback(null, obj);
       });
+    },
+    function(sensor, callback)
+    {
+      console.log("Showing sensor[" + sensor.id + "] with token[" + sensor.token + "] @Pin["+ sensor.pin + "]...");
+      var request = require('request');
+      request('http://blynk-cloud.com/' + sensor.token + '/get/' + sensor.pin, function (error, response, body) {
+                //console.log('Status:', response.statusCode);
+                //console.log('Headers:', JSON.stringify(response.headers));
+                var svalue = body.split('"')[1];
+                //console.log("Reading sensor value => ", svalue);
+                sensor.value = svalue;
+                //console.log('V1:', svalue);
+                db.ref('/sensor').child(sensor.id).update({value: sensor.value, last_read: moment().format()});
+                callback(null, sensor);              });      
     }
-  ], function(err, results){
+  ], function(err, results)
+    {
+      //console.log("Results[0] -> ", results);
       var moment = require('moment');
-      res.render('dashboard/sensor/show_sensor.ejs', {sensor: results[1], moment: moment});
-  });
+      res.render('dashboard/sensor/show_sensor.ejs', {sensor: results, moment: moment});
+    });
 };
 
 exports.api_update_sensor_value = function(req, res){

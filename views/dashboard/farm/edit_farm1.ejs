@@ -864,6 +864,470 @@ function post2farm(path, params, method) {
               </div>
             </div>
             <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #3: <a href=""><i class="icon-save" id="icon-update-farm-valve-3-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_3_id" id="edit-farm-valve-3-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_3_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-3-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 3 เป็น ' + document.getElementById("edit-farm-valve-3-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 3 ใหม่');
+                            var post_url = "/api/farm/update/valve_3_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-3-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 3 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 3 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #4: <a href=""><i class="icon-save" id="icon-update-farm-valve-4-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_4_id" id="edit-farm-valve-4-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_4_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-4-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 4 เป็น ' + document.getElementById("edit-farm-valve-4-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 4 ใหม่');
+                            var post_url = "/api/farm/update/valve_4_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-4-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 4 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 4 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #5: <a href=""><i class="icon-save" id="icon-update-farm-valve-5-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_5_id" id="edit-farm-valve-5-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_5_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-5-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 5 เป็น ' + document.getElementById("edit-farm-valve-5-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 5 ใหม่');
+                            var post_url = "/api/farm/update/valve_5_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-5-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 5 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 5 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #6: <a href=""><i class="icon-save" id="icon-update-farm-valve-6-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_6_id" id="edit-farm-valve-6-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_6_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-6-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 6 เป็น ' + document.getElementById("edit-farm-valve-6-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 6 ใหม่');
+                            var post_url = "/api/farm/update/valve_6_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-6-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 6 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 6 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #7: <a href=""><i class="icon-save" id="icon-update-farm-valve-7-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_7_id" id="edit-farm-valve-7-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_7_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-7-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 7 เป็น ' + document.getElementById("edit-farm-valve-7-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 7 ใหม่');
+                            var post_url = "/api/farm/update/valve_7_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-7-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 7 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 7 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #8: <a href=""><i class="icon-save" id="icon-update-farm-valve-8-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_8_id" id="edit-farm-valve-8-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_8_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-8-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 8 เป็น ' + document.getElementById("edit-farm-valve-8-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 8 ใหม่');
+                            var post_url = "/api/farm/update/valve_8_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-8-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 8 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 8 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #9: <a href=""><i class="icon-save" id="icon-update-farm-valve-9-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_9_id" id="edit-farm-valve-9-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_9_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-9-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 9 เป็น ' + document.getElementById("edit-farm-valve-9-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 9 ใหม่');
+                            var post_url = "/api/farm/update/valve_9_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-9-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 9 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 9 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label">หมายเลขวาล์วเปิดปิดน้ำ #10: <a href=""><i class="icon-save" id="icon-update-farm-valve-10-id"></i></a></label>
+              <div class="controls">
+                <select name="edit_farm_valve_10_id" id="edit-farm-valve-10-id" class="span11">
+                  <% for(var s=0;s < valves.length;s++) { %>
+                    <option value="<%= valves[s].id %>" <% if(farm.valve_10_id == valves[s].id) { %>selected<% } %>><%= valves[s].id %> - <%= valves[s].description %></option>
+                  <% } %>
+                </select>
+                <script>
+                $("#icon-update-farm-valve-10-id").on("click", function(event) {
+                    event.preventDefault();
+                    BootstrapDialog.show({
+                      message: 'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 10 เป็น ' + document.getElementById("edit-farm-valve-10-id").value + '?',
+                      type: BootstrapDialog.TYPE_WARNING,
+                      buttons: [{
+                          label: 'ยกเลิก',
+                          action: function(dialogRef){
+                              dialogRef.close();
+                                }
+                              },
+                        {
+                        icon: 'glyphicon glyphicon-check',
+                        label: 'ตกลง',
+                        cssClass: 'btn-warning',
+                        autospin: true,
+                        action: function(dialogRef){
+                            dialogRef.enableButtons(false);
+                            dialogRef.setClosable(false);
+                            dialogRef.getModalBody().html('ระบบกำลังทำการอัพเดตหมายเลขวาล์วเปิดปิดน้ำชุดที่ 10 ใหม่');
+                            var post_url = "/api/farm/update/valve_10_id/<%= farm.id %>/" + document.getElementById("edit-farm-valve-10-id").value + "/";
+                            //console.log("Post url => ", post_url);
+                            $.post(post_url, {}, function( response ) {
+                              if(response == "200")
+                              {
+                                $.gritter.add({
+                                  title:	'สำเร็จ',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 10 เรียบร้อย...',
+                                  sticky: false
+                                });
+                                dialogRef.close();
+                              }
+                              else{
+                                $.gritter.add({
+                                  title:	'ผิดพลาด',
+                                  text:	'แก้ไขหมายเลขวาล์วเปิดปิดน้ำชุดที่ 10 ไม่สำเร็จ...',
+                                  sticky: true
+                                });
+                                dialogRef.close();
+                              }
+                            });
+                        }
+                    }]
+
+                    });
+                });
+              </script>
+              </div>
+            </div>
+            <div class="control-group">
               <label for="edit-farm-sampling-time" class="col-form-label">ช่วงเวลาตรวจสอบค่าเซ็นเซอร์ (นาที): <a href=""><i class="icon-save" id="icon-update-farm-sampling-time"></i></a></label>
               <input type="number" step="1" min="1" class="span11" id="edit-farm-sampling-time" name="edit_farm_sampling_time" value="<%= farm.sampling_time %>" required>
               <script>

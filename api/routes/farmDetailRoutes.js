@@ -76,6 +76,22 @@ module.exports = function(app) {
     .post(farmDetails.api_update_farm_valve_1_id);
   app.route('/api/farm/update/valve_2_id/:id/:value')
     .post(farmDetails.api_update_farm_valve_2_id);
+  app.route('/api/farm/update/valve_3_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_3_id);
+  app.route('/api/farm/update/valve_4_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_4_id);
+  app.route('/api/farm/update/valve_5_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_5_id);
+  app.route('/api/farm/update/valve_6_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_6_id);
+  app.route('/api/farm/update/valve_7_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_7_id);
+  app.route('/api/farm/update/valve_8_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_8_id);
+  app.route('/api/farm/update/valve_9_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_9_id);
+  app.route('/api/farm/update/valve_10_id/:id/:value')
+    .post(farmDetails.api_update_farm_valve_10_id);
   app.route('/api/farm/update/linegroup_token/:id/:value')
     .post(farmDetails.api_update_farm_linegroup_token);
 

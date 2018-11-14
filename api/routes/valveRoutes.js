@@ -24,14 +24,14 @@ module.exports = function(app) {
     .post(valve.activate_valve);
   app.route('/valve/deactivate/:id')
     .post(valve.deactivate_valve);
-  app.route('/valve/turnon/:id/:key/:field')
+  app.route('/valve/turnon/:id/:token/:pin')
     .post(valve.turnon_valve);
-  app.route('/valve/turnoff/:id/:key/:field')
+  app.route('/valve/turnoff/:id/:token/:pin')
     .post(valve.turnoff_valve);
   app.route('/api/valve/reset_timer/:id/:field')
     .post(valve.api_reset_timer);
-  app.route('/api/valve/turnon/:id/:key/:field')
+  app.route('/api/valve/turnon/:id')
     .post(valve.api_turnon_valve);
-  app.route('/api/valve/turnoff/:id/:key/:field')
+  app.route('/api/valve/turnoff/:id')
     .post(valve.api_turnoff_valve);
 }

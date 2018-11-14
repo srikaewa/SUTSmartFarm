@@ -235,9 +235,17 @@ exports.create_a_farm = function(req, res) {
               humidity_critical_point: "15",
               humidity_last_checked: farm_created_at,
               humidity_last_read: "0",
-              mainpump_id: "000000",
-              valve_1_id: "000000",
-              valve_2_id: "000000",
+              mainpump_id: "-",
+              valve_1_id: "-",
+              valve_2_id: "-",
+              valve_3_id: "-",
+              valve_4_id: "-",
+              valve_5_id: "-",
+              valve_6_id: "-",
+              valve_7_id: "-",
+              valve_8_id: "-",
+              valve_9_id: "-",
+              valve_10_id: "-",
               //humidity_sensor_id: req.body.create_farm_humidity_sensor_id,
               //mainpump_id: req.body.create_farm_mainpump_id,
               //valve_1_id: req.body.create_farm_valve_1_id,
@@ -285,9 +293,17 @@ exports.create_a_farm = function(req, res) {
                 rain_sensor_id: "000000",
                 rain_last_checked: farm_created_at,
                 rain_last_read: "0",
-                mainpump_id: "000000",
-                valve_1_id: "000000",
-                valve_2_id: "000000",
+                mainpump_id: "-",
+                valve_1_id: "-",
+                valve_2_id: "-",
+                valve_3_id: "-",
+                valve_4_id: "-",
+                valve_5_id: "-",
+                valve_6_id: "-",
+                valve_7_id: "-",
+                valve_8_id: "-",
+                valve_9_id: "-",
+                valve_10_id: "-",
                 starting_date: req.body.create_farm_starting_date,
                 linegroup_token: req.body.create_farm_linegroup_token,
                 alarm_time: "08:00",
@@ -1381,6 +1397,166 @@ exports.api_update_farm_valve_2_id = function(req, res){
   });
 }
 
+exports.api_update_farm_valve_3_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_3_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #3 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #3 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_4_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_4_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #4 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #4 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_5_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_5_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #5 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #5 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_6_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_6_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #6 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #6 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_7_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_7_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #7 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #7 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_8_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_8_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #8 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #8 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_9_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_9_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #9 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #9 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
+exports.api_update_farm_valve_10_id = function(req, res){
+  //console.log("Update farm title recieve => ", req.params);
+  var farm_id = req.params.id;
+  //console.log("Set sampling time of farm[" + farm_id + "] with value = " + sampling_time + " minutes...");
+  var ref = db.ref('/farm/').child(farm_id).update({
+    valve_10_id: req.params.value,
+    last_updated: moment().format()
+  }, function(err){
+    if(err)
+    {
+      console.log("Update valve #10 ID of farm[" + farm_id + "] with value = " + req.params.value + "...FAILED!");
+      //res.send('{\"code\":\"500\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์ไม่สำเร็จ\"}');
+      res.send("201");
+    }
+    console.log("Update valve #10 ID of farm[" + farm_id + "] with value = " + req.params.value + "...OK!");
+    //res.send('{\"code\":\"200\", \"message\":\"ตั้งค่าตรวจสอบเซ็นเซอร์เรียบร้อย\"}');
+    res.send("200");
+  });
+}
+
 exports.api_update_farm2_alarm_interval = function(req, res){
   //console.log("Update farm title recieve => ", req.params);
   var farm_id = req.params.id;
@@ -1421,61 +1597,65 @@ exports.api_update_farm_linegroup_token = function(req, res){
   });
 }
 
+// line token : THjkeVJ24lVVXIscna7PpX45jdvlZDLKhAPMINN1EFg
+
 var runFarm = function(fo, count)
 {
 
-          var sensorClient = new ThingSpeakClient();
           //var ref = db.ref('/sensor/'+ fo.farm_id);
           var ref3 = db.ref('/sensor/' + fo.humidity_sensor_id);
           var async = require('async');
           var line = require('../../line/line.js');
 
-          async.series([
-            function(callback){
-              sensorClient.getLastEntryInChannelFeed(parseInt(fo.humidity_sensor_id), {}, function(err, resp){
-                if(typeof resp !== 'undefined')
-                {
-                  db.ref('/sensor').child(fo.humidity_sensor_id).update(resp);
-                  callback(null, 1);
-                }
-              });
-            },
+          async.waterfall([
             function(callback){
               ref3.once('value', function(snapshot) {
-                var sensorObj = JSON.parse(JSON.stringify(snapshot));
-                sensorObj.id = fo.humidity_sensor_id;
-                //res.redirect('../farm');
-                //console.log("Edit farm[" + farm_id + "].......................................");
-                callback(null, sensorObj);
+                var sensor = JSON.parse(JSON.stringify(snapshot));
+                sensor.id = fo.humidity_sensor_id;
+                callback(null, sensor);
               });
             },
-            function(callback){
+            function(sensor, callback){
+              console.log("Reading sensor[" + sensor.id + "] with token[" + sensor.token + "] @Pin["+ sensor.pin + "]...");
+              var request = require('request');
+              request('http://blynk-cloud.com/' + sensor.token + '/get/'+ sensor.pin, function (error, response, body) {
+                    //console.log('Status:', response.statusCode);
+                    //console.log('Headers:', JSON.stringify(response.headers));
+                    var svalue = body.split('"')[1];
+                    console.log('Sensor value => ', svalue);
+                    db.ref('/sensor').child(sensor.id).update({value: svalue});
+                    sensor.value = svalue;
+                    //console.log('Reading sensor value: ', svalue);
+                    callback(null, sensor);    
+                  }); 
+            },
+            function(sensor, callback){
               fo.humidity_last_checked = moment().format();
               db.ref('/farm').child(fo.farm_id).update({
                 humidity_last_checked: fo.humidity_last_checked,
               });
-              callback(null, fo);
+              callback(null, sensor);
             }
           ], function(err, results){
                 var _now = moment().format();
-                console.log("farm[" + fo.farm_id + "] checking humidity sensor #" + count + " = " + results[1].field1 + " value at time => " + results[1].created_at);
-                if(parseFloat(results[1].field1) < parseFloat(fo.humidity_critical_point))
+                console.log("farm[" + fo.farm_id + "] checking humidity sensor #" + count + " = " + results.value + " value at time => " + results.last_read);
+                if(parseFloat(results.value) < parseFloat(fo.humidity_critical_point))
                 {
                   console.log("humidity deplete!!!...alert for watering");
-                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results[1].field1.substring(0,5) + "% มีค่าต่ำกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
+                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results.value.substring(0,5) + "% มีค่าต่ำกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
                   var ref = db.ref('/farm').child(fo.farm_id).update({
                         need_watering: "true",
-                        humidity_last_read: results[1].field1.substring(0,5),
-                        humidity_last_checked: results[1].created_at,
+                        humidity_last_read: results.value.substring(0,5),
+                        humidity_last_checked: results.last_read,
                         farm_last_checked: _now
                       });
                 }
                 else {
-                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results[1].field1.substring(0,5) + "% มีค่ามากกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงไม่ต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
+                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results[1].value.substring(0,5) + "% มีค่ามากกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงไม่ต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
                   var ref = db.ref('/farm').child(fo.farm_id).update({
                         need_watering: "false",
-                        humidity_last_read: results[1].field1.substring(0,5),
-                        humidity_last_checked: results[1].created_at,
+                        humidity_last_read: results.value.substring(0,5),
+                        humidity_last_checked: results.last_read,
                         farm_last_checked: _now
                       });
                 }

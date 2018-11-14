@@ -19,6 +19,7 @@
   "author": "Arthit (JJ)",
   "license": "ISC",
   "dependencies": {
+    "blynk-library": "^0.5.3",
     "body-parser": "^1.18.2",
     "bootstrap-switch": "^3.3.4",
     "cron": "^1.3.0",

@@ -184,7 +184,7 @@ function post2sensor(path, params, method) {
 </div>
 <div class="container-fluid">
   <div class="row-fluid">
-    <div class="span12">
+    <div class="span6">
       <div class="widget-box">
         <div class="widget-title"> <span class="icon"> <i class="icon-align-justify"></i> </span>
           <h5>แก้ไขข้อมูลเซ็นเซอร์</h5>
@@ -193,16 +193,25 @@ function post2sensor(path, params, method) {
           <form action="../update/<%= sensor.id %>" method="post">
             <div class="form-group">
               <label for="sensor-id" class="col-form-label">หมายเลขเซ็นเซอร์:</label>
-              <input type="text" class="form-control" id="edit-sensor-id" name="edit_sensor_id" value="<%= sensor.id %>" readonly>
+              <input type="text" class="span12" id="edit-sensor-id" name="edit_sensor_id" value="<%= sensor.id %>" readonly>
+            </div>
+            <div class="form-group">
+              <label for="sensor-id" class="col-form-label">Token</label>
+              <input type="text" class="span12" id="edit-sensor-token" name="edit_sensor_token" value="<%= sensor.token %>">
             </div>
             <div class="form-group">
               <label for="sensor-description" class="col-form-label">รายละเอียด:</label>
-              <textarea class="form-control" id="edit-sensor-description" name="edit_sensor_description" required><%= sensor.description %></textarea>
+              <textarea class="span12" id="edit-sensor-description" name="edit_sensor_description" required><%= sensor.description %></textarea>
             </div>
             <div class="form-group">
-              <label for="message-text" class="col-form-label">Read API Key:</label>
-              <input type="text" class="form-control" id="edit-sensor-read-api-key" name="edit_sensor_read_api_key" value="<%= sensor.read_api_key %>">
+              <label for="message-text" class="col-form-label">แก้ไขข้อมูลเซ็นเซอร์ล่าสุด</label>
+              <input type="text" class="span12" id="edit_sensor_last_updated" name="edit_sensor_last_updated" value="<%= sensor.last_updated %>" readonly>
             </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">สร้างข้อมูลเซ็นเซอร์เมื่อ</label>
+              <input type="text" class="span12" id="edit_sensor_created_at" name="edit_sensor_created_at" value="<%= sensor.created_at %>" readonly>
+            </div>
+
             <!--<div class="form-group">
               <label for="message-text" class="col-form-label">ช่วงเวลาอ่านค่า (นาที)</label>
               <input type="text" class="form-control" id="edit-sensor-sampling-time" name="edit_sensor_sampling_time" placeholder="15" value="<%= sensor.sampling_time %>">

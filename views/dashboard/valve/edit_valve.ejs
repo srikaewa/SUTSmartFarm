@@ -194,16 +194,30 @@ function post2valve(path, params, method) {
           <form action="../update/<%= valve.id %>" method="post">
             <div class="form-group">
               <label for="valve-id" class="col-form-label">หมายเลขวาล์วเปิดปิดน้ำ:</label>
-              <input type="text" class="form-control" id="edit-valve-id" name="edit_valve_id" value="<%= valve.id %>" readonly>
+              <input type="text" class="form-control span6" id="edit-valve-id" name="edit_valve_id" value="<%= valve.id %>" readonly>
             </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">Token:</label>
+              <input type="text" class="form-control span6" id="edit-valve-token" name="edit_valve_token" value="<%= valve.token %>">
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">PIN:</label>
+              <input type="text" class="form-control span6" id="edit-valve-pin" name="edit_valve_pin" value="<%= valve.pin %>">
+            </div>
+
             <div class="form-group">
               <label for="valve-description" class="col-form-label">รายละเอียด:</label>
-              <textarea class="form-control" id="edit-valve-description" name="edit_valve_description" ><%= valve.description %></textarea>
+              <textarea class="form-control span6" id="edit-valve-description" name="edit_valve_description" ><%= valve.description %></textarea>
             </div>
             <div class="form-group">
-              <label for="message-text" class="col-form-label">Write API Key:</label>
-              <input type="text" class="form-control" id="edit-valve-write-api-key" name="edit_valve_write_api_key" value="<%= valve.write_api_key %>">
+              <label for="message-text" class="col-form-label">สร้างข้อมูลเมื่อ:</label>
+              <input type="text" class="form-control span6" id="edit-valve-created-at" name="edit_valve_created_at" value="<%= valve.created_at %>" readonly>
             </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">แก้ไขข้อมูลล่าสุดเมื่อ:</label>
+              <input type="text" class="form-control span6" id="edit-valve-last-updated" name="edit_valve_last_updated" value="<%= valve.last_updated %>" readonly>
+            </div>
+
             <!--div class="form-group">
               <label class="control-label">เปิดใช้งานวาล์วเปิดปิดน้ำ</label>
                 <label>

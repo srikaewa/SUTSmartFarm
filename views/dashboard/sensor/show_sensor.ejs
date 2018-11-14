@@ -208,10 +208,10 @@ function post2sensor(path, params, method) {
                 <td>รายละเอียด</td>
                 <td style="text-align: center;"><%= sensor.description %></td>
               </tr>
-              <tr>
-                <td>Read API Key</td>
-                <td style="text-align: center;"><%= sensor.read_api_key %></td>
-              </tr>
+              <!--tr>
+                <td>Authentication Token</td>
+                <td style="text-align: center;"><%= sensor.auth_token %></td>
+              </tr-->
               <!--<tr>
                 <td>ช่วงเวลาอ่านค่า (นาที)</td>
                 <td style="text-align: center;"><%= sensor.sampling_time %></td>
@@ -244,12 +244,17 @@ function post2sensor(path, params, method) {
                   </script>
                 </td>
               </tr>-->
+              <% if(sensor.token !== '000000') { %> 
+                <tr>
+                  <td>Token</td>
+                  <td style="text-align: center;"><%= sensor.token %></td>                  
+                </tr>
+                <tr>
+                  <td>Pin</td>
+                  <td style="text-align: center;"><%= sensor.pin %></td>
+                </tr>                
               <tr>
-                <td>เวลาอ่านค่าล่าสุด</td>
-                <td style="text-align: center;"><%= sensor.created_at %></td>
-              </tr>
-              <tr>
-                <td><a href="#" data-toggle="modal" data-target="#<%= sensor.id %>_field1">field #1 <i class="icon-eye-open"></i></a>
+                <td><a href="#" data-toggle="modal" data-target="#<%= sensor.id %>_field1">ค่าเซ็นเซอร์ <i class="icon-eye-open"></i></a>
                   <div class="modal fade" id="<%= sensor.id %>_field1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
@@ -268,13 +273,22 @@ function post2sensor(path, params, method) {
                     </div>
                   </div>
                 </td>
-                <td style="text-align: center;"><%= sensor.field1 %></td>
+                <td style="text-align: center;"><%= sensor.value %></td>
               </tr>
               <tr>
-                <td>field #2</td>
-                <td style="text-align: center;"><%= sensor.field2 %></td>
+                <td>เวลาอ่านค่าล่าสุด</td>
+                <td style="text-align: center;"><%= sensor.last_read %></td>
+              </tr>
+              <% } %>
+              <tr>
+                <td>แก้ไขข้อมูลเซ็นเซอร์ล่าสุดเมื่อ</td>
+                <td style="text-align: center;"><%= sensor.last_updated %></td>
               </tr>
               <tr>
+                <td>สร้างข้อมูลเซ็นเซอร์เมื่อ</td>
+                <td style="text-align: center;"><%= sensor.created_at %></td>
+              </tr>
+              <!--tr>
                 <td>field #3</td>
                 <td style="text-align: center;"><%= sensor.field3 %></td>
               </tr>
@@ -297,12 +311,12 @@ function post2sensor(path, params, method) {
               <tr>
                 <td>field #8</td>
                 <td style="text-align: center;"><%= sensor.field8 %></td>
-              </tr>
+              </tr-->
             </tbody>
           </table>
         </div>
       </div>
-      <button type="button" class="btn btn-primary" onclick="location.href='/sensor/'"><i class="icon-circle-arrow-left"></i> กลับ</button> <button class="btn btn-sm btn-warning" onclick="post2sensor('../edit/<%= sensor.id %>',{});" href="#"><i class="icon-edit"></i> แก้ไข</button>
+      <button type="button" class="btn btn-primary" onclick="location.href='/sensor/'"><i class="icon-circle-arrow-left"></i> กลับ</button> <button class="btn btn-sm btn-warning" onclick="post2sensor('/sensor/edit/<%= sensor.id %>',{});" href="#"><i class="icon-edit"></i> แก้ไข</button>
   </div>
 </div>
 </div>

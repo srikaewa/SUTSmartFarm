@@ -194,15 +194,23 @@ function post2mainpump(path, params, method) {
           <form action="../update/<%= mainpump.id %>" method="post">
             <div class="form-group">
               <label for="mainpump-id" class="col-form-label">หมายเลขปั๊มน้ำ:</label>
-              <input type="text" class="form-control" id="edit-mainpump-id" name="edit_mainpump_id"  value="<%= mainpump.id %>" readonly>
+              <input type="text" class="form-control span6" id="edit-mainpump-id" name="edit_mainpump_id"  value="<%= mainpump.id %>" readonly>
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">PIN:</label>
+              <input type="text" class="form-control span6" id="edit-mainpump-pin" name="edit_mainpump_pin" value="<%= mainpump.pin %>">
             </div>
             <div class="form-group">
               <label for="mainpump-description" class="col-form-label">รายละเอียด:</label>
-              <textarea class="form-control" id="edit-mainpump-description" name="edit_mainpump_description" ><%= mainpump.description %></textarea>
+              <textarea class="form-control span6" id="edit-mainpump-description" name="edit_mainpump_description" ><%= mainpump.description %></textarea>
             </div>
             <div class="form-group">
-              <label for="message-text" class="col-form-label">Write API Key:</label>
-              <input type="text" class="form-control" id="edit-mainpump-write-api-key" name="edit_mainpump_write_api_key" value="<%= mainpump.write_api_key %>">
+              <label for="message-text" class="col-form-label">สร้างข้อมูลเมื่อ:</label>
+              <input type="text" class="form-control span6" id="edit-valve-created-at" name="edit_valve_created_at" value="<%= mainpump.created_at %>" readonly>
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">แก้ไขข้อมูลล่าสุดเมื่อ:</label>
+              <input type="text" class="form-control span6" id="edit-valve-last-updated" name="edit_valve_last_updated" value="<%= mainpump.last_updated %>" readonly>
             </div>
             <!--<div class="form-group">
               <label for="message-text" class="col-form-label">ช่วงเวลาอ่านค่า (นาที)</label>

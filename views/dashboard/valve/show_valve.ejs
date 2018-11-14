@@ -227,13 +227,88 @@ function post2valve(path, params, method) {
                 <td style="text-align: center;"><%= valve.id %></td>
               </tr>
               <tr>
+                <td>Token</td>
+                <td style="text-align: center;"><%= valve.token %></td>
+              </tr>
+              <tr>
+                <td>PIN</td>
+                <td style="text-align: center;"><%= valve.pin %></td>
+              </tr>
+              <tr>
                 <td>รายละเอียด</td>
                 <td style="text-align: center;"><%= valve.description %></td>
               </tr>
+              <% if(valve.token !== '000000') { %> 
+
               <tr>
-                <td>Write API Key</td>
-                <td style="text-align: center;"><%= valve.write_api_key %></td>
-              </tr>
+                <td>สถานะวาล์ว</td>
+                <td style="text-align: center;">
+                  <button id="button-valve-1" style="width:100px" class="btn has-spinner <% if(valve.status == '0') {%>btn-danger" <% }else if(valve.status =='1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.status == '0') {%><i class="icon-remove"></i> ปิด<% } else if(valve.status == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i>  n/a <% } %></button>
+                  <script>
+                  $("#button-valve-1").on("click", function(event) {
+                      //event.preventDefault();
+                      var $this = $(this);
+                      BootstrapDialog.show({
+                        message: '<% if(valve.status == '0' || valve.status == null || valve.status == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ <%= valve.description %>?',
+                        type: BootstrapDialog.TYPE_WARNING,
+                        buttons: [{
+                            label: 'ยกเลิก',
+                            action: function(dialogRef){
+                                dialogRef.close();
+                                  }
+                                },
+                          {
+                          icon: 'glyphicon glyphicon-check',
+                          label: 'ตกลง',
+                          cssClass: 'btn-warning',
+                          autospin: true,
+                          action: function(dialogRef){
+                              $this.toggleClass('active');
+                              dialogRef.enableButtons(false);
+                              dialogRef.setClosable(false);
+                              dialogRef.getModalBody().html('กำลังทำการ<% if(valve.status == '0' || valve.status == null || valve.status == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ <%= valve.description %>...');
+                              var post_url;
+                                <% if(valve.status == '0' || valve.status == null || valve.status == '-') { %>
+                                  post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.token %>/<%= valve.pin %>';
+                                <% } else if(valve.status == "1"){ %>
+                                  post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.token %>/<%= valve.pin %>';
+                                <% } %>
+                                //console.log("post url => ", post_url);
+                                $.post(post_url, {},
+                                  function( response ) {
+                                    //console.log("response => ", response.valve.field4);
+                                    if(response == "200")
+                                    {
+                                      dialogRef.close();
+                                      window.location.reload();
+                                    }
+                                    else{
+                                      <% if(valve.status == '0' || valve.status == null || valve.status == '') { %>
+                                        $.gritter.add({
+                                          title:	'ผิดพลาด',
+                                          text:	'เปิดวาล์วน้ำ <%= valve.description %> ไม่สำเร็จ',
+                                          sticky: true
+                                        });
+                                      <% } else if(valve.status == "1"){ %>
+                                        $.gritter.add({
+                                          title:	'ผิดพลาด',
+                                          text:	'ปิดวาล์วน้ำ <%= valve.description %> ไม่สำเร็จ',
+                                          sticky: true
+                                        });
+                                      <% } %>
+                                      $this.toggleClass('active');
+                                      dialogRef.close();
+                                    }
+                                });
+
+                              //console.log("Post url => ", post_url);
+                          }
+                      }]
+                      });
+                  });
+                </script>
+                </td>
+            </tr>
               <!--<tr>
                 <td>ช่วงเวลาอ่านค่า (นาที)</td>
                 <td style="text-align: center;"><%= valve.sampling_time %></td>
@@ -268,683 +343,9 @@ function post2valve(path, params, method) {
               </tr> -->
               <tr>
                 <td>เวลาอ่านค่าล่าสุด</td>
-                <td style="text-align: center;"><%= valve.created_at %></td>
+                <td style="text-align: center;"><%= valve.last_read %></td>
               </tr>
-              <tr>
-                <td><a href="#" data-toggle="modal" data-target="#<%= valve.id %>_field1">วาล์ว #1 <i class="icon-eye-open"></i></a>
-                  <div class="modal fade" id="<%= valve.id %>_field1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h6 class="modal-title">สถานะวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %> #1</h6>
-                        </div>
-                        <div class="modal-body">
-                          <center>
-                          <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/<%= valve.id %>/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-                        </center>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-
-                <td style="text-align: center;">
-                  <button id="button-valve-field1" style="width:100px" class="btn has-spinner <% if(valve.field1 == '-1') {%>btn-danger" <% }else if(valve.field1 == '1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.field1 == '-1') {%><i class="icon-remove"></i> ปิด<% } else if(valve.field1 == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i>  n/a <% } %></button>
-                  <script>
-                  $("#button-valve-field1").on("click", function(event) {
-                      //event.preventDefault();
-                      var $this = $(this);
-                      BootstrapDialog.show({
-                        message: '<% if(valve.field1 == '-1' || valve.field1 == null || valve.field1 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #1?',
-                        type: BootstrapDialog.TYPE_WARNING,
-                        buttons: [{
-                            label: 'ยกเลิก',
-                            action: function(dialogRef){
-                                dialogRef.close();
-                                  }
-                                },
-                          {
-                          icon: 'glyphicon glyphicon-check',
-                          label: 'ตกลง',
-                          cssClass: 'btn-warning',
-                          autospin: true,
-                          action: function(dialogRef){
-                              $this.toggleClass('active');
-                              dialogRef.enableButtons(false);
-                              dialogRef.setClosable(false);
-                              dialogRef.getModalBody().html('กำลังทำการ<% if(valve.field1 == '-1' || valve.field1 == null || valve.field1 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #1...');
-                              var post_url;
-                                <% if(valve.field1 == '-1' || valve.field1 == null || valve.field1 == '') { %>
-                                  post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/1';
-                                <% } else if(valve.field1 == "1"){ %>
-                                  post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/1';
-                                <% } %>
-                                //console.log("post url => ", post_url);
-                                $.post(post_url, {},
-                                  function( response ) {
-                                    //console.log("response => ", response.valve.field4);
-                                    if(response == "200")
-                                    {
-                                      dialogRef.close();
-                                      window.location.reload();
-                                    }
-                                    else{
-                                      <% if(valve.field1 == '-1' || valve.field1 == null || valve.field1 == '') { %>
-                                        $.gritter.add({
-                                          title:	'ผิดพลาด',
-                                          text:	'เปิดวาล์วน้ำ #1 ไม่สำเร็จ',
-                                          sticky: true
-                                        });
-                                      <% } else if(valve.field1 == "1"){ %>
-                                        $.gritter.add({
-                                          title:	'ผิดพลาด',
-                                          text:	'ปิดวาล์วน้ำ #1 ไม่สำเร็จ',
-                                          sticky: true
-                                        });
-                                      <% } %>
-                                      $this.toggleClass('active');
-                                      dialogRef.close();
-                                    }
-                                });
-
-                              //console.log("Post url => ", post_url);
-                          }
-                      }]
-                      });
-                  });
-                </script>
-                </td>
-              <!--td style="text-align: center;">
-                <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-                <script src="/_js/bootstrap-confirmation.js"></script>
-                <button id="valve_field1" class="btn <% if(valve.field1 == '-1') {%>btn-danger <% }else if(valve.field1 == '1'){ %> btn-success <% } else {%> btn-warning disabled<%}%>" data-toggle="confirmation"
-                data-popout="true"
-                data-btn-ok-label="ตกลง" data-btn-ok-icon="glyphicon glyphicon-share-alt"
-                data-btn-ok-class="btn-success"
-                data-btn-cancel-label="ยกเลิก" data-btn-cancel-icon="glyphicon glyphicon-ban-circle"
-                data-btn-cancel-class="btn-danger"
-                data-title="<% if(valve.field1 == '-1' || valve.field1 == null) {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %>?" data-content="ระบบจะทำการ<% if(valve.field1=='-1' || valve.field1 == null) { %>เปิด<% } else { %>ปิด<% } %>วาล์วน้ำ field #1"><% if(valve.field1 == '-1') {%>ปิด<% } else if(valve.field1 == '1'){ %>เปิด<% } else if(valve.field1 == null){ %> - <% } else { %> n/a <% } %></button>
-                <script>
-                $('[data-toggle=confirmation]').confirmation({
-                   rootSelector: '[data-toggle=confirmation]',
-                  onConfirm: function() {
-                    <% if(valve.field1 == '-1' || valve.field1 == null) { %>
-                      post2valve('/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/1',{});
-                    <% } else { %>
-                      post2valve('/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/1',{});
-                    <% } %>
-                  },
-                  popout: true
-                });
-                </script>
-              </td-->
-            </tr>
-            <tr>
-              <td><a href="#" data-toggle="modal" data-target="#<%= valve.id %>_field2">วาล์ว #2 <i class="icon-eye-open"></i></a>
-                <div class="modal fade" id="<%= valve.id %>_field2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h6 class="modal-title">สถานะวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %> #2</h6>
-                      </div>
-                      <div class="modal-body">
-                        <center>
-                        <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/<%= valve.id %>/charts/2?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-                      </center>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            <!--td style="text-align: center;">
-              <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-              <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-              <script src="/_js/bootstrap-confirmation.js"></script>
-              <button id="valve_field2" class="btn <% if(valve.field2 == '-1') {%>btn-danger <% }else if(valve.field2 == '1'){ %> btn-success <% } else {%> btn-warning disabled<%}%>" data-toggle="confirmation"
-              data-popout="true"
-              data-btn-ok-label="ตกลง" data-btn-ok-icon="glyphicon glyphicon-share-alt"
-              data-btn-ok-class="btn-success"
-              data-btn-cancel-label="ยกเลิก" data-btn-cancel-icon="glyphicon glyphicon-ban-circle"
-              data-btn-cancel-class="btn-danger"
-              data-title="<% if(valve.field2 == '-1') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %>?" data-content="ระบบจะทำการ<% if(valve.field2=='-1') { %>เปิด<% } else { %>ปิด<% } %>วาล์วน้ำ field #2"><% if(valve.field2 == '-1') {%>ปิด<% } else if(valve.field2 == '1'){ %>เปิด<% } else if(valve.field2 == null){ %> - <% } else { %> n/a <% } %></button>
-              <script>
-              $('[data-toggle=confirmation]').confirmation({
-                 rootSelector: '[data-toggle=confirmation]',
-                onConfirm: function() {
-                  <% if(valve.field2 == '-1') { %>
-                    post2valve('/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/2',{});
-                  <% } else { %>
-                    post2valve('/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/2',{});
-                  <% } %>
-                },
-                popout: true
-              });
-              </script>
-            </td-->
-            <td style="text-align: center;">
-              <button id="button-valve-field2" style="width:100px" class="btn has-spinner <% if(valve.field2 == '-1') {%>btn-danger" <% }else if(valve.field2 == '1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.field2 == '-1') {%><i class="icon-remove"></i> ปิด<% } else if(valve.field2 == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i>  n/a <% } %></button>
-              <script>
-              $("#button-valve-field2").on("click", function(event) {
-                  //event.preventDefault();
-                  var $this = $(this);
-                  BootstrapDialog.show({
-                    message: '<% if(valve.field2 == '-1' || valve.field2 == null || valve.field2 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #2?',
-                    type: BootstrapDialog.TYPE_WARNING,
-                    buttons: [{
-                        label: 'ยกเลิก',
-                        action: function(dialogRef){
-                            dialogRef.close();
-                              }
-                            },
-                      {
-                      icon: 'glyphicon glyphicon-check',
-                      label: 'ตกลง',
-                      cssClass: 'btn-warning',
-                      autospin: true,
-                      action: function(dialogRef){
-                          $this.toggleClass('active');
-                          dialogRef.enableButtons(false);
-                          dialogRef.setClosable(false);
-                          dialogRef.getModalBody().html('กำลังทำการ<% if(valve.field2 == '-1' || valve.field2 == null || valve.field2 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #2...');
-                          var post_url;
-                            <% if(valve.field2 == '-1' || valve.field2 == null || valve.field2 == '') { %>
-                              post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/2';
-                            <% } else if(valve.field2 == "1"){ %>
-                              post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/2';
-                            <% } %>
-                            //console.log("post url => ", post_url);
-                            $.post(post_url, {},
-                              function( response ) {
-                                //console.log("response => ", response.valve.field4);
-                                if(response == "200")
-                                {
-                                  dialogRef.close();
-                                  window.location.reload();
-                                }
-                                else{
-                                  <% if(valve.field2 == '-1' || valve.field2 == null || valve.field2 == '') { %>
-                                    $.gritter.add({
-                                      title:	'ผิดพลาด',
-                                      text:	'เปิดวาล์วน้ำ #2 ไม่สำเร็จ',
-                                      sticky: true
-                                    });
-                                  <% } else if(valve.field2 == "1"){ %>
-                                    $.gritter.add({
-                                      title:	'ผิดพลาด',
-                                      text:	'ปิดวาล์วน้ำ #2 ไม่สำเร็จ',
-                                      sticky: true
-                                    });
-                                  <% } %>
-                                  $this.toggleClass('active');
-                                  dialogRef.close();
-                                }
-                            });
-
-                          //console.log("Post url => ", post_url);
-                      }
-                  }]
-                  });
-              });
-            </script>
-            </td>
-          </tr>
-          <tr>
-            <td><a href="#" data-toggle="modal" data-target="#<%= valve.id %>_field3">วาล์ว #3 <i class="icon-eye-open"></i></a>
-              <div class="modal fade" id="<%= valve.id %>_field3" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h6 class="modal-title">สถานะวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %> #3</h6>
-                    </div>
-                    <div class="modal-body">
-                      <center>
-                      <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/<%= valve.id %>/charts/3?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-                      </center?
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </td>
-          <!--td style="text-align: center;">
-            <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-            <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-            <script src="/_js/bootstrap-confirmation.js"></script>
-            <button id="valve_field3" class="btn <% if(valve.field3 == '-1') {%>btn-danger <% }else if(valve.field3 == '1'){ %> btn-success <% } else {%> btn-warning disabled<%}%>" data-toggle="confirmation"
-            data-popout="true"
-            data-btn-ok-label="ตกลง" data-btn-ok-icon="glyphicon glyphicon-share-alt"
-            data-btn-ok-class="btn-success"
-            data-btn-cancel-label="ยกเลิก" data-btn-cancel-icon="glyphicon glyphicon-ban-circle"
-            data-btn-cancel-class="btn-danger"
-            data-title="<% if(valve.field3 == '-1') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %>?" data-content="ระบบจะทำการ<% if(valve.field3=='-1') { %>เปิด<% } else { %>ปิด<% } %>วาล์วน้ำ field #3"><% if(valve.field3 == '-1') {%>ปิด<% } else if(valve.field3 == '1'){ %>เปิด<% } else if(valve.field3 == null){ %> - <% } else { %> n/a <% } %></button>
-            <script>
-            $('[data-toggle=confirmation]').confirmation({
-               rootSelector: '[data-toggle=confirmation]',
-              onConfirm: function() {
-                <% if(valve.field3 == '-1') { %>
-                  post2valve('/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/3',{});
-                <% } else { %>
-                  post2valve('/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/3',{});
-                <% } %>
-              },
-              popout: true
-            });
-            </script>
-          </td-->
-          <td style="text-align: center;">
-            <button id="button-valve-field3" style="width:100px" class="btn has-spinner <% if(valve.field3 == '-1') {%>btn-danger" <% }else if(valve.field3 == '1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.field3 == '-1') {%><i class="icon-remove"></i> ปิด<% } else if(valve.field3 == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i> n/a<% } %></button>
-            <script>
-            $("#button-valve-field3").on("click", function(event) {
-                //event.preventDefault();
-                var $this = $(this);
-                BootstrapDialog.show({
-                  message: '<% if(valve.field3 == '-1' || valve.field3 == null || valve.field3 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #3?',
-                  type: BootstrapDialog.TYPE_WARNING,
-                  buttons: [{
-                      label: 'ยกเลิก',
-                      action: function(dialogRef){
-                          dialogRef.close();
-                            }
-                          },
-                    {
-                    icon: 'glyphicon glyphicon-check',
-                    label: 'ตกลง',
-                    cssClass: 'btn-warning',
-                    autospin: true,
-                    action: function(dialogRef){
-                        $this.toggleClass('active');
-                        dialogRef.enableButtons(false);
-                        dialogRef.setClosable(false);
-                        dialogRef.getModalBody().html('กำลังทำการ<% if(valve.field3 == '-1' || valve.field3 == null || valve.field3 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #3...');
-                        var post_url;
-                          <% if(valve.field3 == '-1' || valve.field3 == null || valve.field3 == '') { %>
-                            post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/3';
-                          <% } else if(valve.field3 == "1"){ %>
-                            post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/3';
-                          <% } %>
-                          //console.log("post url => ", post_url);
-                          $.post(post_url, {},
-                            function( response ) {
-                              //console.log("response => ", response.valve.field4);
-                              if(response == "200")
-                              {
-                                dialogRef.close();
-                                window.location.reload();
-                              }
-                              else{
-                                <% if(valve.field3 == '-1' || valve.field3 == null || valve.field3 == '') { %>
-                                  $.gritter.add({
-                                    title:	'ผิดพลาด',
-                                    text:	'เปิดวาล์วน้ำ #3 ไม่สำเร็จ',
-                                    sticky: true
-                                  });
-                                <% } else if(valve.field3 == "1"){ %>
-                                  $.gritter.add({
-                                    title:	'ผิดพลาด',
-                                    text:	'ปิดวาล์วน้ำ #3 ไม่สำเร็จ',
-                                    sticky: true
-                                  });
-                                <% } %>
-                                $this.toggleClass('active');
-                                dialogRef.close();
-                              }
-                          });
-
-                        //console.log("Post url => ", post_url);
-                    }
-                }]
-                });
-            });
-          </script>
-          </td>
-        </tr>
-        <tr>
-          <td><a href="#" data-toggle="modal" data-target="#<%= valve.id %>_field4">วาล์ว #4 <i class="icon-eye-open"></i></a>
-            <div class="modal fade" id="<%= valve.id %>_field4" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-              <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h6 class="modal-title">สถานะวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %> #4</h6>
-                  </div>
-                  <div class="modal-body">
-                    <center>
-                    <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/<%= valve.id %>/charts/4?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-                  </center>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </td>
-        <!--td style="text-align: center;">
-          <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-          <script src="/_js/bootstrap-confirmation.js"></script>
-          <button id="valve_field4" class="btn <% if(valve.field4 == '-1') {%>btn-danger <% }else if(valve.field4 == '1'){ %> btn-success <% } else {%> btn-warning disabled<%}%>" data-toggle="confirmation"
-          data-popout="true"
-          data-btn-ok-label="ตกลง" data-btn-ok-icon="glyphicon glyphicon-share-alt"
-          data-btn-ok-class="btn-success"
-          data-btn-cancel-label="ยกเลิก" data-btn-cancel-icon="glyphicon glyphicon-ban-circle"
-          data-btn-cancel-class="btn-danger"
-          data-title="<% if(valve.field4 == '-1') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %>?" data-content="ระบบจะทำการ<% if(valve.field4=='-1') { %>เปิด<% } else { %>ปิด<% } %>วาล์วน้ำ field #4"><% if(valve.field4 == '-1') {%>ปิด<% } else if(valve.field4 == '1'){ %>เปิด<% } else if(valve.field4 == null){ %> - <% } else { %> n/a <% } %></button>
-          <script>
-          $('[data-toggle=confirmation]').confirmation({
-             rootSelector: '[data-toggle=confirmation]',
-            onConfirm: function() {
-              <% if(valve.field4 == '-1') { %>
-                post2valve('/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/4',{});
-              <% } else { %>
-                post2valve('/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/4',{});
               <% } %>
-            },
-            popout: true
-          });
-          </script>
-        </td-->
-        <td style="text-align: center;">
-          <button id="button-valve-field4" style="width:100px" class="btn has-spinner <% if(valve.field4 == '-1') {%>btn-danger" <% }else if(valve.field4 == '1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.field4 == '-1') {%><i class="icon-remove"></i> ปิด<% } else if(valve.field4 == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i>  n/a <% } %></button>
-          <script>
-          $("#button-valve-field4").on("click", function(event) {
-              //event.preventDefault();
-              var $this = $(this);
-              BootstrapDialog.show({
-                message: '<% if(valve.field4 == '-1' || valve.field4 == null || valve.field4 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #4?',
-                type: BootstrapDialog.TYPE_WARNING,
-                buttons: [{
-                    label: 'ยกเลิก',
-                    action: function(dialogRef){
-                        dialogRef.close();
-                          }
-                        },
-                  {
-                  icon: 'glyphicon glyphicon-check',
-                  label: 'ตกลง',
-                  cssClass: 'btn-warning',
-                  autospin: true,
-                  action: function(dialogRef){
-                      $this.toggleClass('active');
-                      dialogRef.enableButtons(false);
-                      dialogRef.setClosable(false);
-                      dialogRef.getModalBody().html('กำลังทำการ<% if(valve.field4 == '-1' || valve.field4 == null || valve.field4 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #4...');
-                      var post_url;
-                        <% if(valve.field4 == '-1' || valve.field4 == null || valve.field4 == '') { %>
-                          post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/4';
-                        <% } else if(valve.field4 == "1"){ %>
-                          post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/4';
-                        <% } %>
-                        //console.log("post url => ", post_url);
-                        $.post(post_url, {},
-                          function( response ) {
-                            //console.log("response => ", response.valve.field4);
-                            if(response == "200")
-                            {
-                              dialogRef.close();
-                              window.location.reload();
-                            }
-                            else{
-                              <% if(valve.field4 == '-1' || valve.field4 == null || valve.field4 == '') { %>
-                                $.gritter.add({
-                                  title:	'ผิดพลาด',
-                                  text:	'เปิดวาล์วน้ำ #4 ไม่สำเร็จ',
-                                  sticky: true
-                                });
-                              <% } else if(valve.field4 == "1"){ %>
-                                $.gritter.add({
-                                  title:	'ผิดพลาด',
-                                  text:	'ปิดวาล์วน้ำ #4 ไม่สำเร็จ',
-                                  sticky: true
-                                });
-                              <% } %>
-                              $this.toggleClass('active');
-                              dialogRef.close();
-                            }
-                        });
-
-                      //console.log("Post url => ", post_url);
-                  }
-              }]
-              });
-          });
-        </script>
-        </td>
-      </tr>
-      <tr>
-        <td><a href="#" data-toggle="modal" data-target="#<%= valve.id %>_field5">วาล์ว #5 <i class="icon-eye-open"></i></a>
-          <div class="modal fade" id="<%= valve.id %>_field5" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h6 class="modal-title">สถานะวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %> #5</h6>
-                </div>
-                <div class="modal-body">
-                  <center>
-                  <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/<%= valve.id %>/charts/5?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-                </center>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </td>
-      <!--td style="text-align: center;">
-        <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-        <script src="/_js/bootstrap-confirmation.js"></script>
-        <button id="valve_field5" class="btn <% if(valve.field5 == '-1') {%>btn-danger <% }else if(valve.field5 == '1'){ %> btn-success <% } else {%> btn-warning disabled<%}%>" data-toggle="confirmation"
-        data-popout="true"
-        data-btn-ok-label="ตกลง" data-btn-ok-icon="glyphicon glyphicon-share-alt"
-        data-btn-ok-class="btn-success"
-        data-btn-cancel-label="ยกเลิก" data-btn-cancel-icon="glyphicon glyphicon-ban-circle"
-        data-btn-cancel-class="btn-danger"
-        data-title="<% if(valve.field5 == '-1') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %>?" data-content="ระบบจะทำการ<% if(valve.field5=='-1') { %>เปิด<% } else { %>ปิด<% } %>วาล์วน้ำ field #5"><% if(valve.field5 == '-1') {%>ปิด<% } else if(valve.field5 == '1'){ %>เปิด<% } else if(valve.field5 == null){ %> - <% } else { %> n/a <% } %></button>
-        <script>
-        $('[data-toggle=confirmation]').confirmation({
-           rootSelector: '[data-toggle=confirmation]',
-          onConfirm: function() {
-            <% if(valve.field5 == '-1') { %>
-              post2valve('/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/5',{});
-            <% } else { %>
-              post2valve('/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/5',{});
-            <% } %>
-          },
-          popout: true
-        });
-        </script>
-      </td-->
-      <td style="text-align: center;">
-        <button id="button-valve-field5" style="width:100px" class="btn has-spinner <% if(valve.field5 == '-1') {%>btn-danger" <% }else if(valve.field5 == '1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.field5 == '-1') {%><i class="icon-remove"></i> ปิด<% } else if(valve.field5 == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i>  n/a <% } %></button>
-        <script>
-        $("#button-valve-field5").on("click", function(event) {
-            //event.preventDefault();
-            var $this = $(this);
-            BootstrapDialog.show({
-              message: '<% if(valve.field5 == '-1' || valve.field5 == null || valve.field5 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #5?',
-              type: BootstrapDialog.TYPE_WARNING,
-              buttons: [{
-                  label: 'ยกเลิก',
-                  action: function(dialogRef){
-                      dialogRef.close();
-                        }
-                      },
-                {
-                icon: 'glyphicon glyphicon-check',
-                label: 'ตกลง',
-                cssClass: 'btn-warning',
-                autospin: true,
-                action: function(dialogRef){
-                    $this.toggleClass('active');
-                    dialogRef.enableButtons(false);
-                    dialogRef.setClosable(false);
-                    dialogRef.getModalBody().html('กำลังทำการ<% if(valve.field5 == '-1' || valve.field5 == null || valve.field5 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #5...');
-                    var post_url;
-                      <% if(valve.field5 == '-1' || valve.field5 == null || valve.field5 == '') { %>
-                        post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/5';
-                      <% } else if(valve.field5 == "1"){ %>
-                        post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/5';
-                      <% } %>
-                      //console.log("post url => ", post_url);
-                      $.post(post_url, {},
-                        function( response ) {
-                          //console.log("response => ", response.valve.field4);
-                          if(response == "200")
-                          {
-                            dialogRef.close();
-                            window.location.reload();
-                          }
-                          else{
-                            <% if(valve.field5 == '-1' || valve.field5 == null || valve.field5 == '') { %>
-                              $.gritter.add({
-                                title:	'ผิดพลาด',
-                                text:	'เปิดวาล์วน้ำ #5 ไม่สำเร็จ',
-                                sticky: true
-                              });
-                            <% } else if(valve.field5 == "1"){ %>
-                              $.gritter.add({
-                                title:	'ผิดพลาด',
-                                text:	'ปิดวาล์วน้ำ #5 ไม่สำเร็จ',
-                                sticky: true
-                              });
-                            <% } %>
-                            $this.toggleClass('active');
-                            dialogRef.close();
-                          }
-                      });
-
-                    //console.log("Post url => ", post_url);
-                }
-            }]
-            });
-        });
-      </script>
-      </td>
-    </tr>
-
-              <tr>
-                <td><a href="#" data-toggle="modal" data-target="#<%= valve.id %>_field6">วาล์ว #6 <i class="icon-eye-open"></i></a>
-                  <div class="modal fade" id="<%= valve.id %>_field6" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h6 class="modal-title">สถานะวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %> #6</h6>
-                        </div>
-                        <div class="modal-body">
-                          <center>
-                          <iframe width="450" height="260" style="border: 1px solid #cccccc;" src="https://thingspeak.com/channels/<%= valve.id %>/charts/6?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15"></iframe>
-                        </center>
-                        </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </td>
-              <!--td style="text-align: center;">
-                <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-                <script src="/_js/bootstrap-confirmation.js"></script>
-                <button id="valve_field6" class="btn <% if(valve.field6 == '-1') {%>btn-danger <% }else if(valve.field6 == '1'){ %> btn-success <% } else {%> btn-warning disabled<%}%>" data-toggle="confirmation"
-                data-popout="true"
-                data-btn-ok-label="ตกลง" data-btn-ok-icon="glyphicon glyphicon-share-alt"
-                data-btn-ok-class="btn-success"
-                data-btn-cancel-label="ยกเลิก" data-btn-cancel-icon="glyphicon glyphicon-ban-circle"
-                data-btn-cancel-class="btn-danger"
-                data-title="<% if(valve.field6 == '-1') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วเปิดปิดน้ำหมายเลข <%= valve.id %>?" data-content="ระบบจะทำการ<% if(valve.field6=='-1') { %>เปิด<% } else { %>ปิด<% } %>วาล์วน้ำ field #6"><% if(valve.field6 == '-1') {%>ปิด<% } else if(valve.field6 == '1'){ %>เปิด<% } else if(valve.field6 == null){ %> - <% } else { %> n/a <% } %></button>
-                <script>
-                $('[data-toggle=confirmation]').confirmation({
-                   rootSelector: '[data-toggle=confirmation]',
-                  onConfirm: function() {
-                    <% if(valve.field6 == '-1') { %>
-                      post2valve('/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/6',{});
-                    <% } else { %>
-                      post2valve('/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/6',{});
-                    <% } %>
-                  },
-                  popout: true
-                });
-                </script>
-              </td-->
-              <td style="text-align: center;">
-                <button id="button-valve-field6" style="width:100px" class="btn has-spinner <% if(valve.field6 == '-1') {%>btn-danger" <% }else if(valve.field6 == '1'){ %> btn-success" <% } else {%> btn-warning"<%}%>><span class="spinner"><i class="fa fa-refresh fa-spin"></i></span> <% if(valve.field6 == '-1') {%><i class="icon-remove"></i> ปิด<% } else if(valve.field6 == '1'){ %><i class="icon-ok"></i> เปิด<% } else { %><i class="icon-remove-sign"></i>  n/a <% } %></button>
-                <script>
-                $("#button-valve-field6").on("click", function(event) {
-                    //event.preventDefault();
-                    var $this = $(this);
-                    BootstrapDialog.show({
-                      message: '<% if(valve.field6 == '-1' || valve.field6 == null || valve.field6 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #6?',
-                      type: BootstrapDialog.TYPE_WARNING,
-                      buttons: [{
-                          label: 'ยกเลิก',
-                          action: function(dialogRef){
-                              dialogRef.close();
-                                }
-                              },
-                        {
-                        icon: 'glyphicon glyphicon-check',
-                        label: 'ตกลง',
-                        cssClass: 'btn-warning',
-                        autospin: true,
-                        action: function(dialogRef){
-                            $this.toggleClass('active');
-                            dialogRef.enableButtons(false);
-                            dialogRef.setClosable(false);
-                            dialogRef.getModalBody().html('กำลังทำการ<% if(valve.field6 == '-1' || valve.field6 == null || valve.field6 == '') {%>เปิด<% } else{ %>ปิด<% } %>การใช้งานวาล์วน้ำ #6...');
-                            var post_url;
-                              <% if(valve.field6 == '-1' || valve.field6 == null || valve.field6 == '') { %>
-                                post_url = '/api/valve/turnon/<%= valve.id %>/<%= valve.write_api_key %>/6';
-                              <% } else if(valve.field6 == "1"){ %>
-                                post_url = '/api/valve/turnoff/<%= valve.id %>/<%= valve.write_api_key %>/6';
-                              <% } %>
-                              //console.log("post url => ", post_url);
-                              $.post(post_url, {},
-                                function( response ) {
-                                  //console.log("response => ", response.valve.field4);
-                                  if(response == "200")
-                                  {
-                                    dialogRef.close();
-                                    window.location.reload();
-                                  }
-                                  else{
-                                    <% if(valve.field6 == '-1' || valve.field6 == null || valve.field6 == '') { %>
-                                      $.gritter.add({
-                                        title:	'ผิดพลาด',
-                                        text:	'เปิดวาล์วน้ำ #6 ไม่สำเร็จ',
-                                        sticky: true
-                                      });
-                                    <% } else if(valve.field6 == "1"){ %>
-                                      $.gritter.add({
-                                        title:	'ผิดพลาด',
-                                        text:	'ปิดวาล์วน้ำ #6 ไม่สำเร็จ',
-                                        sticky: true
-                                      });
-                                    <% } %>
-                                    $this.toggleClass('active');
-                                    dialogRef.close();
-                                  }
-                              });
-
-                            //console.log("Post url => ", post_url);
-                        }
-                    }]
-                    });
-                });
-              </script>
-              </td>
-            </tr>
-
               <tr>
                 <td>สร้างข้อมูลเมื่อ</td>
                 <td style="text-align: center;"><%= valve.data_created_at %></td>

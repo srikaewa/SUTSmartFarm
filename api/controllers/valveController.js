@@ -37,11 +37,11 @@ exports.new_valve = function(req, res){
 };
 
 exports.create_a_valve = function(req, res){
-  var valveClient = new ThingSpeakClient();
   var _now = moment();
-  var valve_id = req.body.add_valve_id;
+  var valve_id = uuidv1()
+  var valve_token = req.body.add_valve_token;
   var valve_description = req.body.add_valve_description;
-  var valve_write_api_key = req.body.add_valve_write_api_key;
+  var valve_pin = req.body.add_valve_pin;
   //var valve_sampling_time = (req.body.add_valve_sampling_time==null||req.body.add_valve_sampling_time==""? 5 : req.body.add_valve_sampling_time);
   //console.log('valve id = ' + valve_id + ", key = " + valve_write_api_key + ", sampling time = " + valve_sampling_time);
   /*var ref = db.ref('/valve/' + pump_id).set({
@@ -49,10 +49,13 @@ exports.create_a_valve = function(req, res){
   });*/
     var ref = db.ref('/valve').child(valve_id).set({
       description: valve_description,
-      write_api_key: valve_write_api_key,
+      token: valve_token,
+      pin: valve_pin,
+      status: '-',
+      last_read: _now.format(),
       //sampling_time: valve_sampling_time,
       activated: 'false',
-      entry_id: -1,
+      /*entry_id: -1,
       field1: "0",
       field2: "0",
       field3: "0",
@@ -62,7 +65,7 @@ exports.create_a_valve = function(req, res){
       field7: "0",
       field8: "0",
       created_at: _now.format(),
-      /*onoff1: "false",
+      onoff1: "false",
       onoff2: "false",
       onoff3: "false",
       onoff4: "false",
@@ -70,7 +73,7 @@ exports.create_a_valve = function(req, res){
       onoff6: "false",
       onoff7: "false",
       onoff8: "false", */
-      last_datetime_on1: _now.format(),
+      /*last_datetime_on1: _now.format(),
       last_datetime_on2: _now.format(),
       last_datetime_on3: _now.format(),
       last_datetime_on4: _now.format(),
@@ -93,10 +96,15 @@ exports.create_a_valve = function(req, res){
       time_on5: 0,
       time_on6: 0,
       time_on7: 0,
-      time_on8: 0,
+      time_on8: 0,*/
+      last_datetime_on: _now.format(),
+      last_datetime_off: _now.format(),
+      time_on: 0,
+      created_at: _now.format(),
       data_created_at: _now.format(),
       last_updated: _now.format()
     });
+  console.log("Valve[" + valve_id + "] has been successfully created...");
   res.redirect('/valve');
 };
 
@@ -116,7 +124,8 @@ exports.edit_a_valve = function(req, res){
 exports.update_a_valve = function(req, res){
   var valve_id = req.body.edit_valve_id;
   var valve_description = req.body.edit_valve_description;
-  var valve_write_api_key = req.body.edit_valve_write_api_key;
+  var valve_token = req.body.edit_valve_token;
+  var valve_pin = req.body.edit_valve_pin;
   //var valve_sampling_time = req.body.edit_valve_sampling_time;
   //console.log('valve id = ' + valve_id + ", write_api_key = " + valve_write_api_key);
   //const { edit_valve_on_off } = req.body.edit_valve_on_off;
@@ -125,7 +134,8 @@ exports.update_a_valve = function(req, res){
   //console.log('Valve updated at => ' + created_at.format());
   var ref = db.ref('/valve').child(valve_id).update({
     description: valve_description,
-    write_api_key: valve_write_api_key,
+    token: valve_token,
+    pin: valve_pin,
     //sampling_time: valve_sampling_time,
     //activated: valve
     /*onoff1: (req.body.edit_valve_on_off1==undefined ? 'false' : 'true'),
@@ -144,46 +154,36 @@ exports.update_a_valve = function(req, res){
 exports.show_valve = function(req, res){
   var valve_id = req.params.id;
   var ref = db.ref('/valve/' + valve_id);
-  var valveClient = new ThingSpeakClient();
+  //var valveClient = new ThingSpeakClient();
   var async = require('async');
-
-  async.series([
-    function(callback){
-      valveClient.getLastEntryInChannelFeed(parseInt(valve_id), {}, function(err, resp){
-      //var ts_json = JSON.stringify(resp);
-      //console.log("Data from valve[" + valve_id + "] => ", resp);
-      if(typeof resp !== 'undefined')
+  ref.once('value', function(snapshot) {
+    var valve = JSON.parse(JSON.stringify(snapshot));
+    valve.id = valve_id;
+    console.log("Loading valve[" + valve.id + "] with token[" + valve.token + "] @pin[" + valve.pin + "]...");
+    if(valve.token !== '000000')
       {
-        db.ref('/valve').child(valve_id).update(resp);
-      /*          last_entry_id: resp.entry_id,
-          last_entry_field1: resp.field1,
-          last_entry_field2: resp.field2,
-          last_entry_field3: resp.field3,
-          last_entry_field4: resp.field4,
-          last_entry_field5: resp.field5,
-          last_entry_field6: resp.field6,
-          last_entry_field7: resp.field7,
-          last_entry_field8: resp.field8,
-          last_entry_created_at: resp.created_at*/
-        //);
-        callback(null, 1);
-        }
-      });
-    },
-    function(callback){
-      ref.once('value', function(snapshot) {
-        var obj = JSON.parse(JSON.stringify(snapshot));
-        obj.id = valve_id;
-        //res.redirect('../farm');
-        //console.log("Edit farm[" + farm_id + "].......................................");
-        callback(null, obj);
-      });
-    }
-  ], function(err, results){
-      var moment = require('moment');
-      res.render('dashboard/valve/show_valve.ejs', {valve: results[1], moment: moment});
-  });
-};
+        var request = require('request');
+        console.log("Reading from => " + 'http://blynk-cloud.com/' + valve.token + '/get/' + valve.pin);
+        request('http://blynk-cloud.com/' + valve.token + '/get/' + valve.pin, function (error, response, body) {
+          console.log('Reading Status:', response.statusCode);
+          console.log('Reading Headers:', JSON.stringify(response.headers));
+          console.log('Reading Response:', body);
+          var svalue = body.split('"')[1];
+          console.log("Reading from valve[" + valve.id + "] => status: ", svalue);
+          //var _now = moment();              
+          //db.ref('/valve').child(valve.id).update({status: svalue, last_read: _now.format()}, function(err){
+              valve.status = svalue;
+              var moment = require('moment');
+              console.log('Valve[' + valve.id + '] with token[' + valve.token + '] @pin[' + valve.pin + '] => status: ', valve.status);
+              res.render('dashboard/valve/show_valve.ejs', {valve: valve, moment: moment});
+            //});            
+        });   
+      }
+      else{
+        res.render('dashboard/valve/show_valve.ejs', {valve: valve, moment: moment});
+      }   
+    });
+  };
 
 exports.delete_a_valve = function(req, res){
   var valve_id = req.body.delete_valve_id;
@@ -399,110 +399,10 @@ exports.turnon_valve = function(req, res){
 
 exports.api_turnon_valve = function(req, res){
   var valve_id = req.params.id;
-  var valve_write_api_key = req.params.key;
-  var valve_field = req.params.field;
   //console.log("Field => " + valve_field);
-  var valveClient = new
-  ThingSpeakClient();
   var async = require('async');
 
   async.waterfall([
-    function(callback){
-      valveClient.getLastEntryInChannelFeed(parseInt(valve_id), {}, function(err, resp){
-        //console.log("Reading last entry in channel feed => " + JSON.stringify(resp));
-        if(!err && resp.entry_id > 0)
-        {
-          switch(valve_field){
-            case '1':
-              resp.field1 = "1";
-              break;
-            case '2':
-              resp.field2 = "1";
-              break;
-            case '3':
-              resp.field3 = "1";
-              break;
-            case '4':
-              resp.field4 = "1";
-              break;
-            case '5':
-              resp.field5 = "1";
-              break;
-            case '6':
-              resp.field6 = "1";
-              break;
-            case '7':
-              resp.field7 = "1";
-              break;
-            case '8':
-              resp.field8 = "1";
-              break;
-          };
-          //console.log("Updating valve[" + valve_id + "] with => " + JSON.stringify(resp) + " & key => " + valve_write_api_key);
-          valveClient.attachChannel(parseInt(valve_id),{writeKey: valve_write_api_key});
-          valveClient.updateChannel(parseInt(valve_id), resp, function(err, resp2){
-            if(!err && resp2 > 0)
-            {
-              console.log("Turning on valve[" + valve_id + "] field #" + valve_field + " is done successfully...");
-              callback(null, resp);
-            }
-            else {
-              console.log("Turning on valve[" + valve_id + "] field #" + valve_field + " failed...");
-              //callback("301", "เปิดวาล์ว[" + valve_id + "] field #" + valve_field + " ไม่สำเร็จ!");
-              res.send("201");
-            }
-          });
-        }
-        else {
-          //res.send("Error with " + JSON.stringify(resp));
-          //callback("302", "ไม่สามารถติดต่อ ThingSpeak.com!");
-          res.send("202");
-        }
-      });
-    },
-    function(r, callback){
-      var time_now = moment().format();
-      switch(valve_field){
-        case '1':
-          r.last_datetime_on1 = time_now;
-          r.field1 = '1';
-          break;
-        case '2':
-          r.last_datetime_on2 = time_now;
-          r.field2 = '1';
-          break;
-        case '3':
-          r.last_datetime_on3 = time_now;
-          r.field3 = '1';
-          break;
-        case '4':
-          r.last_datetime_on4 = time_now;
-          r.field4 = '1';
-          break;
-        case '5':
-          r.last_datetime_on5 = time_now;
-          r.field5 = '1';
-          break;
-        case '6':
-          r.last_datetime_on6 = time_now;
-          r.field6 = '1';
-          break;
-        case '7':
-          r.last_datetime_on7 = time_now;
-          r.field7 = '1';
-          break;
-        case '8':
-          r.last_datetime_on8 = time_now;
-          r.field8 = '1';
-          break;
-      };
-      r.last_updated = time_now;
-      db.ref('/valve').child(valve_id).update(r,function(err){
-        console.log("Update time on valve[" + valve_id + "] field #" + valve_field + " is done successfully...");
-        callback(null, "200");
-      });
-    }
-    /*,
     function(callback){
       var ref = db.ref('/valve/' + valve_id);
       ref.once('value', function(snapshot) {
@@ -512,22 +412,37 @@ exports.api_turnon_valve = function(req, res){
         //console.log("Edit farm[" + farm_id + "].......................................");
         callback(null, obj);
       });
-    }*/
-  ], function(err, successfull){
-    /*switch(err)
-    {
-      case "301":
-        console.log("err => ", results);
-        res.send("301");
-        break;
-      case "302":
-        console.log("err => ", results);
-        res.send("302");
-        break;
-    }*/
+    },
+    function(valve, callback){
+      var request = require('request');
+      console.log("Turning on valve[" + valve.id + "] with token[" + valve.token + "] @Pin[" + valve.pin + "]...");
+      //console.log("Sending =>" + 'http://blynk-cloud.com/' + valve.token + '/update/' + valve.pin + "?value=1");
+      request('http://blynk-cloud.com/' + valve.token + '/update/' + valve.pin + "?value=1", function (error, response, body) {
+                //console.log('Status:', response.statusCode);
+                //console.log('Headers:', JSON.stringify(response.headers));
+                //var svalue = body.split('"')[1];
+                //console.log("Reading sensor value => ", svalue);
+                //sensor.value = svalue;
+                //console.log('V1:', svalue);
+                
+                if(response.statusCode == '200')
+                {
+                  var _now = moment().format();                  
+                  db.ref('/valve').child(valve.id).update({status: '1', last_read: _now, last_datetime_on: _now});
+                  callback(null, '200');              
+                }
+                else
+                {
+
+                  callback(null, '201');
+                }
+                
+              });    
+    }
+  ], function(err, results){
     if(err)
-      res.send("203")
-    res.send(successfull);  // turn on valve OK
+      res.send("202")
+    res.send("200");
   });
 };
 
@@ -734,123 +649,11 @@ exports.turnoff_valve = function(req, res){
 
 exports.api_turnoff_valve = function(req, res){
   var valve_id = req.params.id;
-  var valve_write_api_key = req.params.key;
-  var valve_field = req.params.field;
   //console.log("Field => " + valve_field);
-  var valveClient = new ThingSpeakClient();
   var async = require('async');
 
   async.waterfall([
     function(callback){
-      valveClient.getLastEntryInChannelFeed(parseInt(valve_id), {}, function(err, resp){
-        //console.log("Reading last entry in channel feed => " + JSON.stringify(resp));
-        if(!err && resp.entry_id > 0)
-        {
-          switch(valve_field){
-            case '1':
-              resp.field1 = "-1";
-              break;
-            case '2':
-              resp.field2 = "-1";
-              break;
-            case '3':
-              resp.field3 = "-1";
-              break;
-            case '4':
-              resp.field4 = "-1";
-              break;
-            case '5':
-              resp.field5 = "-1";
-              break;
-            case '6':
-              resp.field6 = "-1";
-              break;
-            case '7':
-              resp.field7 = "-1";
-              break;
-            case '8':
-              resp.field8 = "-1";
-              break;
-          }
-          //console.log("Updating valve[" + valve_id + "] with => " + JSON.stringify(resp) + " & key => " + valve_write_api_key);
-          valveClient.attachChannel(parseInt(valve_id),{writeKey: valve_write_api_key});
-          valveClient.updateChannel(parseInt(valve_id), resp, function(err, resp2){
-            if(!err && resp2 > 0)
-            {
-              console.log("Turning off valve[" + valve_id + "] field #" + valve_field + " is done successfully...");
-                callback(null, resp);
-              //console.log("resp => ", resp);
-            }
-            else {
-              console.log("Turning off valve[" + valve_id + "] field #" + valve_field + " failed...");
-              res.send("201");  // update to ThingSpeak failed
-            }
-          });
-        }
-        else {
-          //res.send("Error with " + JSON.stringify(resp));
-          res.send("202");  // read from ThingSpeak failed
-        }
-      });
-    },
-    function(rr, callback){
-      var ref = db.ref('/valve/' + valve_id);
-      ref.once('value', function(snapshot) {
-        var obj = JSON.parse(JSON.stringify(snapshot));
-        var time_now = moment().format();
-        var r = {};
-        switch(valve_field){
-          case '1':
-            r.last_datetime_off1 = time_now;
-            r.time_on1 = obj.time_on1 + getValveOnTime(obj.last_datetime_on1, time_now);
-            r.field1 = rr.field1;
-            break;
-          case '2':
-            r.last_datetime_off2 = time_now;
-            r.time_on2 = obj.time_on2 + getValveOnTime(obj.last_datetime_on2, time_now);
-            r.field2 = rr.field2;
-            break;
-          case '3':
-            r.last_datetime_off3 = time_now;
-            r.time_on3 = obj.time_on3 + getValveOnTime(obj.last_datetime_on3, time_now);
-            r.field3 = rr.field3;
-            break;
-          case '4':
-            r.last_datetime_off4 = time_now;
-            r.time_on4 = obj.time_on4 + getValveOnTime(obj.last_datetime_on4, time_now);
-            r.field4 = rr.field4;
-            break;
-          case '5':
-            r.last_datetime_off5 = time_now;
-            r.time_on5 = obj.time_on5 + getValveOnTime(obj.last_datetime_on5, time_now);
-            r.field5 = rr.field5;
-            break;
-          case '6':
-            r.last_datetime_off6 = time_now;
-            r.time_on6 = obj.time_on6 + getValveOnTime(obj.last_datetime_on6, time_now);
-            r.field6 = rr.field6;
-            break;
-          case '7':
-            r.last_datetime_off7 = time_now;
-            r.time_on7 = obj.time_on7 + getValveOnTime(obj.last_datetime_on7, time_now);
-            r.field7 = rr.field7;
-            break;
-          case '8':
-            r.last_datetime_off8 = time_now;
-            r.time_on8 = obj.time_on8 + getValveOnTime(obj.last_datetime_on8, time_now);
-            r.field8 = rr.field8;
-            break;
-        };
-        r.last_updated = time_now;
-        db.ref('/valve').child(valve_id).update(r,function(err){
-          if(err)
-            res.send("203");  // update Firebase failed
-          console.log("Update time off valve[" + valve_id + "] field #" + valve_field + " is done successfully...");
-          callback(null, "200");
-        });
-      });
-    }
-    /*function(callback){
       var ref = db.ref('/valve/' + valve_id);
       ref.once('value', function(snapshot) {
         var obj = JSON.parse(JSON.stringify(snapshot));
@@ -859,10 +662,37 @@ exports.api_turnoff_valve = function(req, res){
         //console.log("Edit farm[" + farm_id + "].......................................");
         callback(null, obj);
       });
-    }*/
-  ], function(err, successfull){
+    },
+    function(valve, callback){
+      var request = require('request');
+      console.log("Turning off valve[" + valve.id + "] with token[" + valve.token + "] @Pin[" + valve.pin + "]...");
+      //console.log("Sending =>" + 'http://blynk-cloud.com/' + valve.token + '/update/' + valve.pin + "?value=1");
+      request('http://blynk-cloud.com/' + valve.token + '/update/' + valve.pin + "?value=0", function (error, response, body) {
+                //console.log('Status:', response.statusCode);
+                //console.log('Headers:', JSON.stringify(response.headers));
+                //var svalue = body.split('"')[1];
+                //console.log("Reading sensor value => ", svalue);
+                //sensor.value = svalue;
+                //console.log('V1:', svalue);
+                
+                if(response.statusCode == '200')
+                {
+                  var _now = moment().format();
+                  var timeon = valve.time_on + getValveOnTime(valve.last_datetime_on, _now);
+                  db.ref('/valve').child(valve.id).update({status: '0', last_read: _now, last_datetime_off: _now, time_on: timeon});
+                  callback(null, '200');              
+                }
+                else
+                {
+                  
+                  callback(null, '201');
+                }
+                
+              });    
+    }
+  ], function(err, results){
     if(err)
-      res.send("204");
-    res.send(successfull);
+      res.send("202")
+    res.send("200");
   });
 };

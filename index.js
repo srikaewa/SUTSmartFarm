@@ -72,6 +72,6 @@ require('./api/routes/plantRoutes')(app);
 //app.listen(8080);
 var port = process.env.PORT || 3000;
 var server = app.listen(port, function() {
-  console.log('Smart Irrigation System server listening on port ' + port);
+  console.log('BRR Smart Irrigation System server listening on port ' + port);
 });
 //console.log('Smart Irrigation System is up and running...');
