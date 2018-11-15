@@ -34,4 +34,6 @@ module.exports = function(app) {
     .post(valve.api_turnon_valve);
   app.route('/api/valve/turnoff/:id')
     .post(valve.api_turnoff_valve);
+  app.route('/api/blynk/valve/update/:token/:pin/:value')
+    .get(valve.api_update_valve_from_blynk);
 }

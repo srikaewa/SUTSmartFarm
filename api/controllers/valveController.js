@@ -38,7 +38,7 @@ exports.new_valve = function(req, res){
 
 exports.create_a_valve = function(req, res){
   var _now = moment();
-  var valve_id = uuidv1()
+  var valve_id = req.body.add_valve_token + req.body.add_valve_pin
   var valve_token = req.body.add_valve_token;
   var valve_description = req.body.add_valve_description;
   var valve_pin = req.body.add_valve_pin;
@@ -53,50 +53,7 @@ exports.create_a_valve = function(req, res){
       pin: valve_pin,
       status: '-',
       last_read: _now.format(),
-      //sampling_time: valve_sampling_time,
       activated: 'false',
-      /*entry_id: -1,
-      field1: "0",
-      field2: "0",
-      field3: "0",
-      field4: "0",
-      field5: "0",
-      field6: "0",
-      field7: "0",
-      field8: "0",
-      created_at: _now.format(),
-      onoff1: "false",
-      onoff2: "false",
-      onoff3: "false",
-      onoff4: "false",
-      onoff5: "false",
-      onoff6: "false",
-      onoff7: "false",
-      onoff8: "false", */
-      /*last_datetime_on1: _now.format(),
-      last_datetime_on2: _now.format(),
-      last_datetime_on3: _now.format(),
-      last_datetime_on4: _now.format(),
-      last_datetime_on5: _now.format(),
-      last_datetime_on6: _now.format(),
-      last_datetime_on7: _now.format(),
-      last_datetime_on8: _now.format(),
-      last_datetime_off1: _now.format(),
-      last_datetime_off2: _now.format(),
-      last_datetime_off3: _now.format(),
-      last_datetime_off4: _now.format(),
-      last_datetime_off5: _now.format(),
-      last_datetime_off6: _now.format(),
-      last_datetime_off7: _now.format(),
-      last_datetime_off8: _now.format(),
-      time_on1: 0,
-      time_on2: 0,
-      time_on3: 0,
-      time_on4: 0,
-      time_on5: 0,
-      time_on6: 0,
-      time_on7: 0,
-      time_on8: 0,*/
       last_datetime_on: _now.format(),
       last_datetime_off: _now.format(),
       time_on: 0,
@@ -475,13 +432,16 @@ var getValveOnTime = function(startTime, stopTime){
 
 exports.api_reset_timer = function(req, res){
   var valve_id = req.params.id;
-  db.ref('/valve').child(valve_id).update({time_on: 0, last_updated: time_now}, function(err){
+  console.log("Trying to reset timer of valve[" + valve_id + "]...");
+  db.ref('/valve').child(valve_id).update({time_on: 0, last_updated: moment().format()}, function(err){
     if(err)
       res.send("201");
     console.log("Reset valve[" + valve_id + "] timer...OK");
     res.send("200");
   });
 }
+
+
 
 exports.turnoff_valve = function(req, res){
   var valve_id = req.params.id;
@@ -663,5 +623,57 @@ exports.api_turnoff_valve = function(req, res){
     if(err)
       res.send("202")
     res.send("200");
+  });
+};
+
+exports.api_update_valve_from_blynk = function(req, res)
+{
+  var valve_id = req.params.token + req.params.pin;
+  var value = req.params.value;
+  async.waterfall([
+    function(callback){
+      var ref = db.ref('/valve/' + valve_id);
+      ref.once('value', function(snapshot) {
+        var obj = JSON.parse(JSON.stringify(snapshot));
+        obj.id = valve_id;
+        //res.redirect('../farm');
+        //console.log("Edit farm[" + farm_id + "].......................................");
+        callback(null, obj);
+      });
+    },
+    function(valve, callback){
+      var request = require('request');
+      var _now = moment().format();
+      if(value == '1')
+      {
+        db.ref('/valve').child(valve.id).update({status: '1', last_read: _now, last_datetime_on: _now}, function(err){
+          if(err)
+          {
+            console.log("Turning on valve[" + valve.id + "] with token[" + valve.token + "] @Pin[" + valve.pin + "] by Blynk...FAILED!");  
+            callback(err, "400");
+          }
+          console.log("Turning on valve[" + valve.id + "] with token[" + valve.token + "] @Pin[" + valve.pin + "] by Blynk...OK");  
+          callback(null, "200")
+        });        
+      }else
+      {
+        var timeon = valve.time_on + getValveOnTime(valve.last_datetime_on, _now);
+        db.ref('/valve').child(valve.id).update({status: '0', last_read: _now, last_datetime_off: _now, time_on: timeon}, function(err){
+          if(err)
+          {
+            console.log("Turning off valve[" + valve.id + "] with token[" + valve.token + "] @Pin[" + valve.pin + "] by Blynk...FAILED!");  
+            callback(err, "400");
+          }
+          console.log("Turning off valve[" + valve.id + "] with token[" + valve.token + "] @Pin[" + valve.pin + "] by Blynk...OK");  
+          callback(null, "200");
+        });        
+      }
+    }
+  ], function(err, results){
+    if(err)
+    {    
+      res.send(results)
+    }
+    res.send(results);
   });
 };
