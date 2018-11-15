@@ -28,7 +28,7 @@ module.exports = function(app) {
     .post(valve.turnon_valve);
   app.route('/valve/turnoff/:id/:token/:pin')
     .post(valve.turnoff_valve);
-  app.route('/api/valve/reset_timer/:id/:field')
+  app.route('/api/valve/reset_timer/:id')
     .post(valve.api_reset_timer);
   app.route('/api/valve/turnon/:id')
     .post(valve.api_turnon_valve);
