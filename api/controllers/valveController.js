@@ -475,41 +475,10 @@ var getValveOnTime = function(startTime, stopTime){
 
 exports.api_reset_timer = function(req, res){
   var valve_id = req.params.id;
-  var valve_field = req.params.field;
-  var resp = {};
-  switch(valve_field)
-  {
-    case '1':
-      resp.time_on1 = 0;
-      break;
-    case '2':
-      resp.time_on2 = 0;
-      break;
-    case '3':
-      resp.time_on3 = 0;
-      break;
-    case '4':
-      resp.time_on4 = 0;
-      break;
-    case '5':
-      resp.time_on5 = 0;
-      break;
-    case '6':
-      resp.time_on6 = 0;
-      break;
-    case '7':
-      resp.time_on7 = 0;
-      break;
-    case '8':
-      resp.time_on8 = 0;
-      break;
-  }
-  //console.log("resp => ", resp);
-  resp.last_updated = moment().format();
-  db.ref('/valve').child(valve_id).update(resp,function(err){
+  db.ref('/valve').child(valve_id).update({time_on: 0, last_updated: time_now}, function(err){
     if(err)
       res.send("201");
-    console.log("Reset valve[" + valve_id + "] #" + valve_field + " timer...OK");
+    console.log("Reset valve[" + valve_id + "] timer...OK");
     res.send("200");
   });
 }
