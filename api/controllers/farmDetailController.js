@@ -774,7 +774,7 @@ exports.show_farm_detail = function(req, res) {
             var ref = db.ref('/sensor/'+farm.rain_sensor_id);
             ref.once('value', function(snapshot){
               sensor = JSON.parse(JSON.stringify(snapshot));
-              //console.log("Sensor...." + farm.humidity_sensor_id + sensor);
+              //console.log("Sensor...." + farm.rain_sensor_id + " value = " + sensor.description);
               callback(null, sensor);
             });
           }
@@ -1621,18 +1621,21 @@ var runFarm = function(fo, count)
               request('http://blynk-cloud.com/' + sensor.token + '/get/'+ sensor.pin, function (error, response, body) {
                     //console.log('Status:', response.statusCode);
                     //console.log('Headers:', JSON.stringify(response.headers));
+                    var _now = moment().format();
                     var svalue = body.split('"')[1];
                     console.log('Sensor value => ', svalue);
-                    db.ref('/sensor').child(sensor.id).update({value: svalue});
+                    db.ref('/sensor').child(sensor.id).update({value: svalue, last_read: _now});
                     sensor.value = svalue;
+                    sensor.last_read = _now;
                     //console.log('Reading sensor value: ', svalue);
                     callback(null, sensor);    
                   }); 
             },
             function(sensor, callback){
-              fo.humidity_last_checked = moment().format();
+              var _now = moment().format();
+              fo.humidity_last_checked = _now;
               db.ref('/farm').child(fo.farm_id).update({
-                humidity_last_checked: fo.humidity_last_checked,
+                humidity_last_checked: _now
               });
               callback(null, sensor);
             }
@@ -1642,7 +1645,7 @@ var runFarm = function(fo, count)
                 if(parseFloat(results.value) < parseFloat(fo.humidity_critical_point))
                 {
                   console.log("humidity deplete!!!...alert for watering");
-                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results.value.substring(0,5) + "% มีค่าต่ำกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
+                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results + "% มีค่าต่ำกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
                   var ref = db.ref('/farm').child(fo.farm_id).update({
                         need_watering: "true",
                         humidity_last_read: results.value.substring(0,5),
@@ -1651,10 +1654,10 @@ var runFarm = function(fo, count)
                       });
                 }
                 else {
-                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results[1].value.substring(0,5) + "% มีค่ามากกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงไม่ต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
+                  line.lineGroupNotify("ความชื้นในแปลงเท่ากับ " + results[1] + "% มีค่ามากกว่าจุดวิกฤต " + fo.humidity_critical_point + "% ณ เวลา " + fo.humidity_last_checked + " แปลงไม่ต้องการน้ำสำหรับ" + fo.title, fo.linegroup_token);
                   var ref = db.ref('/farm').child(fo.farm_id).update({
                         need_watering: "false",
-                        humidity_last_read: results.value.substring(0,5),
+                        humidity_last_read: results.value,
                         humidity_last_checked: results.last_read,
                         farm_last_checked: _now
                       });
@@ -2124,97 +2127,126 @@ exports.api_activate_farm_2 = function(req, res){
             }
 
             // read rain sensor after activate farm
-            var sensorClient = new ThingSpeakClient();
+            //var sensorClient = new ThingSpeakClient();
             var sensor_id = farmObj.rain_sensor_id;
-            var ref = db.ref('/sensor/' + sensor_id);
+            var ref3 = db.ref('/sensor/' + sensor_id);
             var async = require('async');
 
-            async.series([
+            if(sensor_id != "00000000")
+            {
+            async.waterfall([
               function(callback){
-                sensorClient.getLastEntryInChannelFeed(parseInt(sensor_id), {}, function(err, resp){
-                  if(typeof resp !== 'undefined')
-                  {
-                    db.ref('/sensor').child(sensor_id).update(resp);
-                    callback(null, resp);
-                  }
+                ref3.once('value', function(snapshot) {
+                  var sensor = JSON.parse(JSON.stringify(snapshot));
+                  sensor.id = farmObj.rain_sensor_id;
+                  callback(null, sensor);
                 });
               },
-              function(callback){
-                ref.once('value', function(snapshot) {
-                  var obj = JSON.parse(JSON.stringify(snapshot));
-                  obj.id = sensor_id;
-                  //res.redirect('../farm');
-                  //console.log("Edit farm[" + farm_id + "].......................................");
-                  callback(null, obj);
+              function(sensor, callback){
+                console.log("Reading sensor[" + sensor.id + "] with token[" + sensor.token + "] @Pin["+ sensor.pin + "]...");
+                var request = require('request');
+                request('http://blynk-cloud.com/' + sensor.token + '/get/'+ sensor.pin, function (error, response, body) {
+                      //console.log('Status:', response.statusCode);
+                      //console.log('Headers:', JSON.stringify(response.headers));
+                      var _now = moment().format();
+                      var svalue = body.split('"')[1];
+                      console.log('Sensor value => ', svalue);
+                      db.ref('/sensor').child(sensor.id).update({value: svalue, last_read: _now});
+                      sensor.value = svalue;
+                      sensor.last_read = _now;
+                      //console.log('Reading sensor value: ', svalue);
+                      callback(null, sensor);    
+                    }); 
+              },
+              function(sensor, callback){
+                var _now = moment().format();
+                farmObj.rain_last_checked = _now;
+                db.ref('/farm').child(farmObj.farm_id).update({
+                  rain_last_checked: _now
                 });
+                callback(null, sensor);
               }
             ], function(err, results){
-                //var moment = require('moment');
-                //res.render('dashboard/sensor/show_sensor.ejs', {sensor: results[1], moment: moment});
-                var rtime_now = moment().format();
-                if(results[1].field1 != null)
-                {
-                  console.log("Check rain sensor before alarm the today watering => ", results[1].field1);
-                  line.lineGroupNotify("ปริมาณน้ำฝนในฟาร์ม" + farmObj.title + " เท่ากับ " + results[1].field1 + " มม. @" + rtime_now, farmObj.linegroup_token);
-                  db.ref('/farm').child(farmObj.farm_id).update({
-                    rain_last_checked: results[1].created_at,
-                    rain_last_read: results[1].field1.substring(0,6),
-                    last_updated: rtime_now
-                  });
-                }
-                else {
-                  console.log("Check rain sensor before alarm the today watering => FAILED");
-                  line.lineGroupNotify("ไม่สามารถอ่านค่าเซ็นเซอร์น้ำฝนในฟาร์ม" + farmObj.title + "ได้ @" + rtime_now, farmObj.linegroup_token);
-                }
-            });
+                  console.log("farm[" + farmObj.farm_id + "] checking rain sensor #" + count + " = " + results.value + " value at time => " + results.last_read);
 
-            var r_schedule = schedule.scheduleJob(rdate, function(){
-              // check rain sensor before watering alarm to adjust the amount of watering
-              var sensorClient = new ThingSpeakClient();
-              var sensor_id = farmObj.rain_sensor_id;
-              var ref = db.ref('/sensor/' + sensor_id);
-              var async = require('async');
-
-              async.series([
-                function(callback){
-                  sensorClient.getLastEntryInChannelFeed(parseInt(sensor_id), {}, function(err, resp){
-                    if(typeof resp !== 'undefined')
-                    {
-                      db.ref('/sensor').child(sensor_id).update(resp);
-                      callback(null, 1);
-                    }
-                  });
-                },
-                function(callback){
-                  ref.once('value', function(snapshot) {
-                    var obj = JSON.parse(JSON.stringify(snapshot));
-                    obj.id = sensor_id;
-                    //res.redirect('../farm');
-                    //console.log("Edit farm[" + farm_id + "].......................................");
-                    callback(null, obj);
-                  });
-                }
-              ], function(err, results){
-                  //var moment = require('moment');
-                  //res.render('dashboard/sensor/show_sensor.ejs', {sensor: results[1], moment: moment});
                   var rtime_now = moment().format();
-                  if(results[1].field1 != null)
+                  if(results.value != null)
                   {
-                    console.log("Check rain sensor before alarm the today watering => ", results[1].field1);
-                    line.lineGroupNotify("ปริมาณน้ำฝนในฟาร์ม" + farmObj.title + " เท่ากับ " + results[1].field1 + " มม. @" + rtime_now, farmObj.linegroup_token);
+                    console.log("Check rain sensor before alarm the today watering => ", results.value);
+                    line.lineGroupNotify("ปริมาณน้ำฝนในฟาร์ม" + farmObj.title + " เท่ากับ " + results.value + " มม. @" + rtime_now, farmObj.linegroup_token);
                     db.ref('/farm').child(farmObj.farm_id).update({
-                      rain_last_checked: results[1].created_at,
-                      rain_last_read: results[1].field1.substring(0,6),
-                      last_updated: rtime_now
+                      rain_last_checked: results.last_read,
+                      rain_last_read: results.value,
+                      last_updated: rtime_now,
+                      farm_last_checked: rtime_now
                     });
                   }
                   else {
                     console.log("Check rain sensor before alarm the today watering => FAILED");
                     line.lineGroupNotify("ไม่สามารถอ่านค่าเซ็นเซอร์น้ำฝนในฟาร์ม" + farmObj.title + "ได้ @" + rtime_now, farmObj.linegroup_token);
                   }
+            });
+          
+            var r_schedule = schedule.scheduleJob(rdate, function(){
+              // check rain sensor before watering alarm to adjust the amount of watering
+              var sensor_id = farmObj.rain_sensor_id;
+              var ref = db.ref('/sensor/' + sensor_id);
+              var async = require('async');
+
+              async.waterfall([
+                function(callback){
+                  ref.once('value', function(snapshot) {
+                    var sensor = JSON.parse(JSON.stringify(snapshot));
+                    sensor.id = farmObj.rain_sensor_id;
+                    callback(null, sensor);
+                  });
+                },
+                function(sensor, callback){
+                  console.log("Reading sensor[" + sensor.id + "] with token[" + sensor.token + "] @Pin["+ sensor.pin + "]...");
+                  var request = require('request');
+                  request('http://blynk-cloud.com/' + sensor.token + '/get/'+ sensor.pin, function (error, response, body) {
+                        //console.log('Status:', response.statusCode);
+                        //console.log('Headers:', JSON.stringify(response.headers));
+                        var _now = moment().format();
+                        var svalue = body.split('"')[1];
+                        console.log('Sensor value => ', svalue);
+                        db.ref('/sensor').child(sensor.id).update({value: svalue, last_read: _now});
+                        sensor.value = svalue;
+                        sensor.last_read = _now;
+                        //console.log('Reading sensor value: ', svalue);
+                        callback(null, sensor);    
+                      }); 
+                },
+                function(sensor, callback){
+                  var _now = moment().format();
+                  farmObj.rain_last_checked = _now;
+                  db.ref('/farm').child(farmObj.farm_id).update({
+                    rain_last_checked: _now
+                  });
+                  callback(null, sensor);
+                }
+              ], function(err, results){
+                    console.log("farm[" + farmObj.farm_id + "] checking rain sensor #" + count + " = " + results.value + " value at time => " + results.last_read);
+  
+                    var rtime_now = moment().format();
+                    if(results.value != null)
+                    {
+                      console.log("Check rain sensor before alarm the today watering => ", results.value);
+                      line.lineGroupNotify("ปริมาณน้ำฝนในฟาร์ม" + farmObj.title + " เท่ากับ " + results.value + " มม. @" + rtime_now, farmObj.linegroup_token);
+                      db.ref('/farm').child(farmObj.farm_id).update({
+                        rain_last_checked: results.last_read,
+                        rain_last_read: results.value,
+                        last_updated: rtime_now,
+                        farm_last_checked: rtime_now
+                      });
+                    }
+                    else {
+                      console.log("Check rain sensor before alarm the today watering => FAILED");
+                      line.lineGroupNotify("ไม่สามารถอ่านค่าเซ็นเซอร์น้ำฝนในฟาร์ม" + farmObj.title + "ได้ @" + rtime_now, farmObj.linegroup_token);
+                    }
               });
             });
-
+          }
             var w_schedule = schedule.scheduleJob(date, function(){
               if(farmObj.alarm_start == "false")
               {

@@ -7,25 +7,25 @@ var firebase = require('firebase');
 //var firebase_config = require('../../scripts/firebase_config');
 
   // Initialize Firebase
-var config = {
-  apiKey: "AIzaSyA1ZfV2sGC8Je4gmUTVcYqW1N0yD0vhMaA",
-  authDomain: "brr-high-precision-sugarcane.firebaseapp.com",
-  databaseURL: "https://brr-high-precision-sugarcane.firebaseio.com",
-  projectId: "brr-high-precision-sugarcane",
-  storageBucket: "brr-high-precision-sugarcane.appspot.com",
-  messagingSenderId: "376848359206"
-};
+  var config = {
+    apiKey: "AIzaSyBmhUpUNsoWGAoIyl8UzGMhXtX5FvDqZ-o",
+    authDomain: "sut-smart-farm.firebaseapp.com",
+    databaseURL: "https://sut-smart-farm.firebaseio.com",
+    projectId: "sut-smart-farm",
+    storageBucket: "sut-smart-farm.appspot.com",
+    messagingSenderId: "839799484438"
+  };
   firebase.initializeApp(config);
 
 var userList = [];
 
 var admin = require("firebase-admin");
 
-var serviceAccount = require("../../keys/brr-high-precision-sugarcane-firebase-adminsdk-jyxv0-9e1f4e88f9.json");
+var serviceAccount = require("../../keys/sut-smart-farm-firebase-adminsdk-rtchb-3b00d9839b.json");
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://brr-high-precision-sugarcane.firebaseio.com"
+  databaseURL: "https://sut-smart-farm.firebaseio.com"
 });
 
 function snapshotToArray(snapshot) {

@@ -70,8 +70,8 @@ require('./api/routes/plantRoutes')(app);
 
 //exports.app = functions.https.onRequest(app);
 //app.listen(8080);
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 9099;
 var server = app.listen(port, function() {
-  console.log('BRR Smart Irrigation System server listening on port ' + port);
+  console.log('SUT Smart Irrigation System server listening on port ' + port);
 });
 //console.log('Smart Irrigation System is up and running...');

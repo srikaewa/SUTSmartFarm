@@ -37,7 +37,7 @@ exports.new_mainpump = function(req, res){
 
 exports.create_a_mainpump = function(req, res){
   var _now = moment();
-  var mainpump_id = uuidv1();
+  var mainpump_id = req.body.add_mainpump_token + req.body.add_mainpump_pin
   var mainpump_token = req.body.add_mainpump_token;
   var mainpump_description = req.body.add_mainpump_description;
   var mainpump_pin = req.body.add_mainpump_pin;

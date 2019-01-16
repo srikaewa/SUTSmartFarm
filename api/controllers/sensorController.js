@@ -39,8 +39,9 @@ exports.new_sensor = function(req, res){
 };
 
 exports.create_a_sensor = function(req, res){
-  var sensor_id = uuidv1();
+  var sensor_id = req.body.add_sensor_token + req.body.add_sensor_pin;
   var sensor_token = req.body.add_sensor_token;
+  var sensor_pin = req.body.add_sensor_pin;
   var sensor_description = req.body.add_sensor_description;
   //var sensor_read_api_key = req.body.add_sensor_read_api_key;
   var _now = moment();
@@ -51,6 +52,7 @@ exports.create_a_sensor = function(req, res){
   });*/
     var ref = db.ref('/sensor').child(sensor_id).set({
       token: sensor_token,
+      pin: sensor_pin,
       description: sensor_description,
       value: '0',
       //read_api_key: sensor_read_api_key,

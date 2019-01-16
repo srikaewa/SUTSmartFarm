@@ -6,19 +6,20 @@
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
  </head>
  <!-- Below is the initialization snippet for my Firebase project. It will vary for each project -->
- <script src="https://www.gstatic.com/firebasejs/5.5.2/firebase.js"></script>
-<script>
-  // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyA1ZfV2sGC8Je4gmUTVcYqW1N0yD0vhMaA",
-    authDomain: "brr-high-precision-sugarcane.firebaseapp.com",
-    databaseURL: "https://brr-high-precision-sugarcane.firebaseio.com",
-    projectId: "brr-high-precision-sugarcane",
-    storageBucket: "",
-    messagingSenderId: "376848359206"
-  };
-  firebase.initializeApp(config);
-</script>
+
+ <script src="https://www.gstatic.com/firebasejs/5.7.0/firebase.js"></script>
+ <script>
+   // Initialize Firebase
+   var config = {
+     apiKey: "AIzaSyBmhUpUNsoWGAoIyl8UzGMhXtX5FvDqZ-o",
+     authDomain: "sut-smart-farm.firebaseapp.com",
+     databaseURL: "https://sut-smart-farm.firebaseio.com",
+     projectId: "sut-smart-farm",
+     storageBucket: "sut-smart-farm.appspot.com",
+     messagingSenderId: "839799484438"
+   };
+   firebase.initializeApp(config);
+ </script>
 
  <!-- The code below initializes the sign-in widget from FirebaseUI web. -->
  <script src="https://cdn.firebase.com/libs/firebaseui/1.0.0/firebaseui.js"></script>
@@ -44,7 +45,7 @@
   <body>
       <div>
         <br>
-       <h5 align="center" style="color:black;">BRR Smart Sugarcane System Backend</h5>
+       <h5 align="center" style="color:black;">SUT Smart Farm System Backend</h5>
         <div id="firebaseui-auth-container"></div>
       </div>
   </body>

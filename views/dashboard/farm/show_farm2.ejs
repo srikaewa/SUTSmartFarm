@@ -25,16 +25,17 @@
 <script src="/_js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.35.4/js/bootstrap-dialog.min.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/5.7.0/firebase.js"></script>
 <script>
   // Initialize Firebase
   var config = {
-    apiKey: "AIzaSyA1ZfV2sGC8Je4gmUTVcYqW1N0yD0vhMaA",
-    authDomain: "brr-high-precision-sugarcane.firebaseapp.com",
-    databaseURL: "https://brr-high-precision-sugarcane.firebaseio.com",
-    projectId: "brr-high-precision-sugarcane",
-    storageBucket: "brr-high-precision-sugarcane.appspot.com",
-    messagingSenderId: "376848359206"
+    apiKey: "AIzaSyBmhUpUNsoWGAoIyl8UzGMhXtX5FvDqZ-o",
+    authDomain: "sut-smart-farm.firebaseapp.com",
+    databaseURL: "https://sut-smart-farm.firebaseio.com",
+    projectId: "sut-smart-farm",
+    storageBucket: "sut-smart-farm.appspot.com",
+    messagingSenderId: "839799484438"
   };
   firebase.initializeApp(config);
 </script>
@@ -371,12 +372,14 @@ function post2farm(path, params, method) {
                     <tr class="odd gradeX" >
                       <td>ปริมาณน้ำฝนล่าสุด</td>
                       <td style="text-align: center;">
-                          <% if(sensor.value != null) {%> <%= sensor.value %> มม. <% } else { %> - <% } %>
+                          <% if(sensor.token != "000000") {%> <%= sensor.value %> มม. <% } else { %> <%= sensor.description %> <% } %>
                       </td>
                     </tr>
                     <tr>
                       <td>ตรวจสอบปริมาณน้ำฝนล่าสุด</td>
-                      <td style="text-align: center;"><%= farm.rain_last_checked %></td>
+                      <td style="text-align: center;">
+                        <% if(sensor.token != "000000") { %> <%= farm.rain_last_checked %> <% } else { %> - <% } %>
+                      </td>
                     </tr>
                     <tr class="odd gradeX">
                       <td>หมายเลขปั๊มน้ำ</td>
